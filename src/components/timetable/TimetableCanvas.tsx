@@ -46,8 +46,38 @@ function polar(r: number, angle: number) {
  */
 function sectorPath(innerR: number, outerR: number, startAngle: number, endAngle: number): string {
   const f = (n: number) => n.toFixed(3);
-  const large = endAngle - startAngle > Math.PI ? 1 : 0;
+  const arcAngle = endAngle - startAngle;
   const sO = polar(outerR, startAngle);
+
+  // SVG arc는 시작점과 끝점이 같으면 아무것도 그리지 않는다.
+  // 24시간 블록(arcAngle ≈ 2π)처럼 완전한 원이 되는 경우, 반호(半弧) 두 개로 나눠 그린다.
+  if (arcAngle >= 2 * Math.PI - 0.001) {
+    const mO = polar(outerR, startAngle + Math.PI);
+    if (innerR === 0) {
+      return [
+        `M ${CX} ${CY}`,
+        `L ${f(sO.x)} ${f(sO.y)}`,
+        `A ${outerR} ${outerR} 0 1 1 ${f(mO.x)} ${f(mO.y)}`,
+        `A ${outerR} ${outerR} 0 1 1 ${f(sO.x)} ${f(sO.y)}`,
+        "Z",
+      ].join(" ");
+    }
+    const sI = polar(innerR, startAngle);
+    const mI = polar(innerR, startAngle + Math.PI);
+    return [
+      // 외호: 시계 방향으로 두 반호
+      `M ${f(sO.x)} ${f(sO.y)}`,
+      `A ${outerR} ${outerR} 0 1 1 ${f(mO.x)} ${f(mO.y)}`,
+      `A ${outerR} ${outerR} 0 1 1 ${f(sO.x)} ${f(sO.y)}`,
+      // 내호: 반시계 방향으로 두 반호 (구멍 역할)
+      `M ${f(sI.x)} ${f(sI.y)}`,
+      `A ${innerR} ${innerR} 0 1 0 ${f(mI.x)} ${f(mI.y)}`,
+      `A ${innerR} ${innerR} 0 1 0 ${f(sI.x)} ${f(sI.y)}`,
+      "Z",
+    ].join(" ");
+  }
+
+  const large = arcAngle > Math.PI ? 1 : 0;
   const eO = polar(outerR, endAngle);
 
   if (innerR === 0) {
