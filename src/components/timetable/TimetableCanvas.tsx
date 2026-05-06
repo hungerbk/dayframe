@@ -8,10 +8,10 @@ import ToggleGroup from "@/components/ui/ToggleGroup";
 // SVG 뷰박스 중심 좌표 (600×600 기준)
 const CX = 300;
 const CY = 300;
-const OUTER_R = 230;  // 바깥 반지름
-const INNER_R = 105;  // 도넛 모드의 안쪽 반지름 (구멍)
-const LABEL_R = 258;  // 시각 레이블을 원 바깥에 배치할 반지름
-const TICK_OUTER = OUTER_R + 10;      // 눈금선 바깥 끝 반지름
+const OUTER_R = 230; // 바깥 반지름
+const INNER_R = 105; // 도넛 모드의 안쪽 반지름 (구멍)
+const LABEL_R = 258; // 시각 레이블을 원 바깥에 배치할 반지름
+const TICK_OUTER = OUTER_R + 10; // 눈금선 바깥 끝 반지름
 const TICK_MINOR_INNER = OUTER_R + 4; // 일반 눈금선 안쪽 끝 반지름 (짧게)
 const TICK_MAJOR_INNER = OUTER_R + 2; // 주요 눈금선(0, 6, 12, 18시) 안쪽 끝 반지름 (더 길게)
 
@@ -44,12 +44,7 @@ function polar(r: number, angle: number) {
  *
  * large-arc-flag: 호의 각도가 π(180°)를 초과하면 1, 아니면 0.
  */
-function sectorPath(
-  innerR: number,
-  outerR: number,
-  startAngle: number,
-  endAngle: number
-): string {
+function sectorPath(innerR: number, outerR: number, startAngle: number, endAngle: number): string {
   const f = (n: number) => n.toFixed(3);
   const large = endAngle - startAngle > Math.PI ? 1 : 0;
   const sO = polar(outerR, startAngle);
@@ -57,24 +52,13 @@ function sectorPath(
 
   if (innerR === 0) {
     // 중심에서 펼쳐지는 파이 조각
-    return [
-      `M ${CX} ${CY}`,
-      `L ${f(sO.x)} ${f(sO.y)}`,
-      `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`,
-      "Z",
-    ].join(" ");
+    return [`M ${CX} ${CY}`, `L ${f(sO.x)} ${f(sO.y)}`, `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`, "Z"].join(" ");
   }
 
   // 도넛 고리 조각: 외호(시계) → 내호(반시계)
   const sI = polar(innerR, startAngle);
   const eI = polar(innerR, endAngle);
-  return [
-    `M ${f(sO.x)} ${f(sO.y)}`,
-    `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`,
-    `L ${f(eI.x)} ${f(eI.y)}`,
-    `A ${innerR} ${innerR} 0 ${large} 0 ${f(sI.x)} ${f(sI.y)}`,
-    "Z",
-  ].join(" ");
+  return [`M ${f(sO.x)} ${f(sO.y)}`, `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`, `L ${f(eI.x)} ${f(eI.y)}`, `A ${innerR} ${innerR} 0 ${large} 0 ${f(sI.x)} ${f(sI.y)}`, "Z"].join(" ");
 }
 
 const HOUR_LABELS: { hour: number; label: string }[] = [
@@ -95,15 +79,7 @@ function HourTicks() {
         const inner = isMajor ? TICK_MAJOR_INNER : TICK_MINOR_INNER;
         const p1 = polar(inner, angle);
         const p2 = polar(TICK_OUTER, angle);
-        return (
-          <line
-            key={h}
-            x1={p1.x} y1={p1.y}
-            x2={p2.x} y2={p2.y}
-            stroke={isMajor ? "#94a3b8" : "#cbd5e1"}
-            strokeWidth={isMajor ? 1.5 : 1}
-          />
-        );
+        return <line key={h} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={isMajor ? "#94a3b8" : "#cbd5e1"} strokeWidth={isMajor ? 1.5 : 1} />;
       })}
     </>
   );
@@ -124,15 +100,7 @@ function HourLabels({ display, blocks }: HourLabelsProps) {
     const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
     const { x, y } = polar(LABEL_R, angle);
     return (
-      <text
-        key={`major-${hour}`}
-        x={x} y={y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={13}
-        fontWeight={600}
-        fill="#64748b"
-      >
+      <text key={`major-${hour}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="#64748b">
         {label}
       </text>
     );
@@ -154,15 +122,7 @@ function HourLabels({ display, blocks }: HourLabelsProps) {
         // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
         const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
         return (
-          <text
-            key={`block-${time}`}
-            x={x} y={y}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={11}
-            fontWeight={500}
-            fill="#94a3b8"
-          >
+          <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill="#94a3b8">
             {label}
           </text>
         );
@@ -177,9 +137,9 @@ interface BlockArcProps {
 }
 
 const FONT_SIZE = 13;
-const CHAR_WIDTH = 8;  // 한글/영문 혼합 기준 글자당 평균 px (font-size 13 기준)
+const CHAR_WIDTH = 12; // 한글/영문 혼합 기준 글자당 평균 px (font-size 13 기준)
 const LINE_HEIGHT = 18; // 줄 간격 px
-const MAX_LINES = 3;   // 도넛 반지름 공간(125px)을 고려한 최대 줄 수
+const MAX_LINES = 3; // 도넛 반지름 공간(125px)을 고려한 최대 줄 수
 
 /**
  * 텍스트를 최대 글자 수 기준으로 줄 배열로 나눈다.
@@ -222,9 +182,7 @@ function BlockArc({ block, innerR }: BlockArcProps) {
   const minAngleForText = Math.PI / 24;
   // arcAngle >= π이면 호의 중앙부는 공간이 충분하므로 지름 전체를 사용한다.
   // 작은 호에서는 현(chord) 길이로 가로 여백을 추정한다.
-  const chordWidth = arcAngle >= Math.PI
-    ? 2 * midTextR
-    : 2 * Math.sin(arcAngle / 2) * midTextR;
+  const chordWidth = arcAngle >= Math.PI ? 2 * midTextR : 2 * Math.sin(arcAngle / 2) * midTextR;
   const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
   const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
 
@@ -236,22 +194,9 @@ function BlockArc({ block, innerR }: BlockArcProps) {
 
   return (
     <g>
-      <path
-        d={sectorPath(innerR, OUTER_R, startAngle, endAngle)}
-        fill={block.color}
-        stroke="white"
-        strokeWidth={1}
-        opacity={0.92}
-      />
+      <path d={sectorPath(innerR, OUTER_R, startAngle, endAngle)} fill={block.color} stroke="white" strokeWidth={1} opacity={0.92} />
       {lines.length > 0 && (
-        <text
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={FONT_SIZE}
-          fill="white"
-          fontWeight={600}
-          style={{ pointerEvents: "none", userSelect: "none" }}
-        >
+        <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill="white" fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
           {lines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
