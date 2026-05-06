@@ -1,7 +1,7 @@
-import "./App.css";
+import TimetableCanvas from "@/components/timetable/TimetableCanvas";
 
 function App() {
-  return <></>;
+  return <TimetableCanvas />;
 }
 
 export default App;
