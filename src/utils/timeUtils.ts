@@ -11,10 +11,7 @@ export function isValidTime(time: string): boolean {
   return h >= 0 && h <= 23 && m >= 0 && m <= 59
 }
 
+// 자정을 넘는 블록(예: 22:00~07:00)을 허용하기 위해 start !== end 조건만 검사한다.
 export function isEndAfterStart(start: string, end: string): boolean {
-  const toMinutes = (t: string) => {
-    const [h, m] = t.split(':').map(Number)
-    return h * 60 + m
-  }
-  return toMinutes(end) > toMinutes(start)
+  return start !== end
 }

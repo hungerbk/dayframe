@@ -19,6 +19,10 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    if (!startTime || !endTime) {
+      setError("시작 시간과 종료 시간을 모두 입력해주세요.");
+      return;
+    }
     if (!isValidTime(startTime)) {
       setError("시작 시간이 올바르지 않습니다. (00:00~24:00 사이로 입력해주세요.)");
       return;
@@ -28,7 +32,7 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
       return;
     }
     if (!isEndAfterStart(startTime, endTime)) {
-      setError("종료 시간은 시작 시간보다 늦어야 합니다.");
+      setError("시작 시간과 종료 시간은 같을 수 없습니다.");
       return;
     }
 
