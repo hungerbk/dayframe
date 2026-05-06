@@ -6,7 +6,8 @@ import Button from "./Button";
 
 interface Props {
   onAdd: (block: TimeBlock) => void;
-  color: string;
+  // TODO: #4 테마 구현 시 theme에서 color 주입으로 변경
+  color?: string;
 }
 
 export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
