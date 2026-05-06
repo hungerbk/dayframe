@@ -1,19 +1,19 @@
 ---
-name: Feature
+name: Feature report
 about: Suggest an idea for this project
-title: ''
+title: "[Feat]"
 labels: feature
 assignees: ''
 
 ---
 
----
+<!--
 name: 기능 구현
 about: 새로운 기능 개발
 title: "[Feat] "
 labels: feature
 assignees: ""
----
+-->
 
 ## 📋 개요
 > 어떤 기능인지 간단히 설명해주세요.
