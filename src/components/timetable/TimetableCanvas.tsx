@@ -3,6 +3,7 @@ import type { TimeBlock } from "@/types";
 import { pickRandomColor } from "@/utils";
 import { CORAL_BLOCK_COLORS } from "@/constants/palettes";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
+import ToggleGroup from "@/components/ui/ToggleGroup";
 
 // SVG 뷰박스 중심 좌표 (600×600 기준)
 const CX = 300;
@@ -296,10 +297,6 @@ export default function TimetableCanvas() {
     setBlocks((prev) => [...prev, { ...block, color }]);
   }
 
-  const btnBase = "flex items-center justify-center px-3 py-1.5 rounded-md transition-colors";
-  const btnActive = "bg-white shadow-sm text-slate-700";
-  const btnInactive = "text-slate-400 hover:text-slate-600";
-
   return (
     <div className="flex flex-col items-center gap-4 p-4">
       <div className="w-full max-w-lg aspect-square">
@@ -324,39 +321,23 @@ export default function TimetableCanvas() {
 
       {/* 컨트롤 */}
       <div className="flex gap-3 flex-wrap justify-center">
-        {/* 모양 토글 */}
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-          <button
-            type="button"
-            className={`${btnBase} ${shape === "donut" ? btnActive : btnInactive}`}
-            onClick={() => setShape("donut")}
-            aria-label="도넛 모양"
-          >
-            <DonutIcon />
-          </button>
-          <button
-            type="button"
-            className={`${btnBase} ${shape === "circle" ? btnActive : btnInactive}`}
-            onClick={() => setShape("circle")}
-            aria-label="원형 모양"
-          >
-            <CircleIcon />
-          </button>
-        </div>
-
-        {/* 숫자 표시 토글 */}
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-          {(["all", "major", "none"] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              className={`${btnBase} text-sm ${numberDisplay === mode ? btnActive : btnInactive}`}
-              onClick={() => setNumberDisplay(mode)}
-            >
-              {mode === "all" ? "전체" : mode === "major" ? "주요" : "없음"}
-            </button>
-          ))}
-        </div>
+        <ToggleGroup
+          options={[
+            { value: "donut", label: <DonutIcon />, ariaLabel: "도넛 모양" },
+            { value: "circle", label: <CircleIcon />, ariaLabel: "원형 모양" },
+          ]}
+          value={shape}
+          onChange={(v) => setShape(v)}
+        />
+        <ToggleGroup
+          options={[
+            { value: "all", label: "전체" },
+            { value: "major", label: "주요" },
+            { value: "none", label: "없음" },
+          ]}
+          value={numberDisplay}
+          onChange={(v) => setNumberDisplay(v)}
+        />
       </div>
 
       <div className="w-full max-w-lg">
