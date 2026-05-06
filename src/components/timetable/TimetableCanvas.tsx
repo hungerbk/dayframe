@@ -115,8 +115,6 @@ function HourTicks() {
   );
 }
 
-// 'all' 모드에서 블록 시각과 중복 체크할 주요 레이블 시각 목록
-const MAJOR_TIME_SET = new Set(["00:00", "06:00", "12:00", "18:00", "24:00"]);
 
 interface HourLabelsProps {
   display: NumberDisplay;
@@ -138,10 +136,9 @@ function HourLabels({ display, blocks }: HourLabelsProps) {
 
   if (display === "major") return <>{majorItems}</>;
 
-  // 'all' 모드: 주요 레이블 대신 블록 시작/종료 시각만 표시한다.
-  // 주요 시각(0, 6, 12, 18시)과 겹치는 경우 중복을 제거한다.
+  // 'all' 모드: 블록 시작/종료 시각만 표시한다 (주요 레이블 없음).
   const blockTimes = blocks.flatMap((b) => [b.startTime, b.endTime]);
-  const uniqueBlockTimes = [...new Set(blockTimes)].filter((t) => !MAJOR_TIME_SET.has(t));
+  const uniqueBlockTimes = [...new Set(blockTimes)];
 
   return (
     <>
