@@ -15,6 +15,7 @@ const TICK_MINOR_INNER = OUTER_R + 4; // 일반 눈금선 안쪽 끝 반지름 (
 const TICK_MAJOR_INNER = OUTER_R + 2; // 주요 눈금선(0, 6, 12, 18시) 안쪽 끝 반지름 (더 길게)
 
 type Shape = "donut" | "circle";
+type NumberDisplay = "all" | "major" | "none";
 
 /**
  * HH:MM 문자열을 SVG 각도(라디안)로 변환한다.
@@ -107,21 +108,59 @@ function HourTicks() {
   );
 }
 
-function HourLabels() {
+// 'all' 모드에서 블록 시각과 중복 체크할 주요 레이블 시각 목록
+const MAJOR_TIME_SET = new Set(["00:00", "06:00", "12:00", "18:00", "24:00"]);
+
+interface HourLabelsProps {
+  display: NumberDisplay;
+  blocks: TimeBlock[];
+}
+
+function HourLabels({ display, blocks }: HourLabelsProps) {
+  if (display === "none") return null;
+
+  const majorItems = HOUR_LABELS.map(({ hour, label }) => {
+    const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
+    const { x, y } = polar(LABEL_R, angle);
+    return (
+      <text
+        key={`major-${hour}`}
+        x={x} y={y}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={13}
+        fontWeight={600}
+        fill="#64748b"
+      >
+        {label}
+      </text>
+    );
+  });
+
+  if (display === "major") return <>{majorItems}</>;
+
+  // 'all' 모드: 주요 레이블 대신 블록 시작/종료 시각만 표시한다.
+  // 주요 시각(0, 6, 12, 18시)과 겹치는 경우 중복을 제거한다.
+  const blockTimes = blocks.flatMap((b) => [b.startTime, b.endTime]);
+  const uniqueBlockTimes = [...new Set(blockTimes)].filter((t) => !MAJOR_TIME_SET.has(t));
+
   return (
     <>
-      {HOUR_LABELS.map(({ hour, label }) => {
-        const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
+      {uniqueBlockTimes.map((time) => {
+        const [h, m] = time.split(":").map(Number);
+        const angle = ((h * 60 + m) / (24 * 60)) * 2 * Math.PI - Math.PI / 2;
         const { x, y } = polar(LABEL_R, angle);
+        // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
+        const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
         return (
           <text
-            key={hour}
+            key={`block-${time}`}
             x={x} y={y}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={13}
-            fontWeight={600}
-            fill="#64748b"
+            fontSize={11}
+            fontWeight={500}
+            fill="#94a3b8"
           >
             {label}
           </text>
@@ -244,6 +283,7 @@ function CircleIcon() {
 export default function TimetableCanvas() {
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [shape, setShape] = useState<Shape>("donut");
+  const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
 
   // 선택된 모양에 따라 실제 렌더링에 쓸 innerR을 결정한다
   const innerR = shape === "donut" ? INNER_R : 0;
@@ -278,28 +318,45 @@ export default function TimetableCanvas() {
           {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
           {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
 
-          <HourLabels />
+          <HourLabels display={numberDisplay} blocks={blocks} />
         </svg>
       </div>
 
-      {/* 모양 토글 */}
-      <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-        <button
-          type="button"
-          className={`${btnBase} ${shape === "donut" ? btnActive : btnInactive}`}
-          onClick={() => setShape("donut")}
-          aria-label="도넛 모양"
-        >
-          <DonutIcon />
-        </button>
-        <button
-          type="button"
-          className={`${btnBase} ${shape === "circle" ? btnActive : btnInactive}`}
-          onClick={() => setShape("circle")}
-          aria-label="원형 모양"
-        >
-          <CircleIcon />
-        </button>
+      {/* 컨트롤 */}
+      <div className="flex gap-3 flex-wrap justify-center">
+        {/* 모양 토글 */}
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+          <button
+            type="button"
+            className={`${btnBase} ${shape === "donut" ? btnActive : btnInactive}`}
+            onClick={() => setShape("donut")}
+            aria-label="도넛 모양"
+          >
+            <DonutIcon />
+          </button>
+          <button
+            type="button"
+            className={`${btnBase} ${shape === "circle" ? btnActive : btnInactive}`}
+            onClick={() => setShape("circle")}
+            aria-label="원형 모양"
+          >
+            <CircleIcon />
+          </button>
+        </div>
+
+        {/* 숫자 표시 토글 */}
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+          {(["all", "major", "none"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              className={`${btnBase} text-sm ${numberDisplay === mode ? btnActive : btnInactive}`}
+              onClick={() => setNumberDisplay(mode)}
+            >
+              {mode === "all" ? "전체" : mode === "major" ? "주요" : "없음"}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="w-full max-w-lg">
