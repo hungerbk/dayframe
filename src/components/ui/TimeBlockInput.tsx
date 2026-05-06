@@ -77,6 +77,7 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
         type="text"
         placeholder="예: 점심시간"
         value={title}
+        maxLength={50}
         onChange={(e) => {
           setTitle(e.target.value);
           setError("");
