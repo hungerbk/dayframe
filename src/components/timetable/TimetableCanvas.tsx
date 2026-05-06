@@ -161,7 +161,10 @@ function splitIntoLines(text: string, maxCharsPerLine: number): string[] {
 
 function BlockArc({ block }: BlockArcProps) {
   const startAngle = timeToAngle(block.startTime);
-  const endAngle = timeToAngle(block.endTime);
+  let endAngle = timeToAngle(block.endTime);
+  // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
+  // 2π를 더해 시계 방향으로 이어지게 한다
+  if (endAngle <= startAngle) endAngle += 2 * Math.PI;
   const arcAngle = endAngle - startAngle;
   const midAngle = startAngle + arcAngle / 2;
   const { x: tx, y: ty } = polar(MID_R, midAngle);
