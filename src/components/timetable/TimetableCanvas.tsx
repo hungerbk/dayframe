@@ -7,13 +7,14 @@ import TimeBlockInput from "@/components/ui/TimeBlockInput";
 // SVG 뷰박스 중심 좌표 (600×600 기준)
 const CX = 300;
 const CY = 300;
-const OUTER_R = 230; // 도넛 바깥 반지름
-const INNER_R = 105; // 도넛 안쪽 반지름 (구멍)
-const MID_R = (OUTER_R + INNER_R) / 2; // 블록 텍스트를 배치할 호의 중간 반지름
-const LABEL_R = 258; // 시각 레이블(0, 6, 12, 18)을 원 바깥에 배치할 반지름
-const TICK_OUTER = OUTER_R + 10; // 눈금선 바깥 끝 반지름
+const OUTER_R = 230;  // 바깥 반지름
+const INNER_R = 105;  // 도넛 모드의 안쪽 반지름 (구멍)
+const LABEL_R = 258;  // 시각 레이블을 원 바깥에 배치할 반지름
+const TICK_OUTER = OUTER_R + 10;      // 눈금선 바깥 끝 반지름
 const TICK_MINOR_INNER = OUTER_R + 4; // 일반 눈금선 안쪽 끝 반지름 (짧게)
-const TICK_MAJOR_INNER = OUTER_R + 2; // 주요 눈금선(0, 6, 12, 18시) 안쪽 끝 반지름 (더 짧아서 굵어보임)
+const TICK_MAJOR_INNER = OUTER_R + 2; // 주요 눈금선(0, 6, 12, 18시) 안쪽 끝 반지름 (더 길게)
+
+type Shape = "donut" | "circle";
 
 /**
  * HH:MM 문자열을 SVG 각도(라디안)로 변환한다.
@@ -34,30 +35,37 @@ function polar(r: number, angle: number) {
 }
 
 /**
- * 도넛 형태의 부채꼴(annular sector) SVG path를 생성한다.
+ * 부채꼴 SVG path를 생성한다.
  *
- * 경로 순서:
- * 1. 외호 시작점으로 이동 (M)
- * 2. 외호를 시계 방향으로 그림 (A, sweep-flag=1)
- * 3. 외호 끝점 → 내호 끝점으로 직선 이동 (L)
- * 4. 내호를 반시계 방향으로 그림 (A, sweep-flag=0) — 외호와 반대 방향이어야 닫힌 도형이 됨
- * 5. 경로 닫기 (Z)
+ * innerR > 0 (도넛 모드): 외호 → 직선 → 내호 역방향 → Z 로 닫힌 고리 조각을 만든다.
+ * innerR = 0 (원형 모드): 중심 → 외호 시작점 → 외호 → Z 로 파이 조각을 만든다.
  *
  * large-arc-flag: 호의 각도가 π(180°)를 초과하면 1, 아니면 0.
- * 절반 이상을 차지하는 블록이 짧은 쪽 호로 그려지는 것을 방지하기 위해 필요하다.
  */
-function annularSectorPath(
+function sectorPath(
   innerR: number,
   outerR: number,
   startAngle: number,
   endAngle: number
 ): string {
-  const sO = polar(outerR, startAngle); // 외호 시작점
-  const eO = polar(outerR, endAngle);   // 외호 끝점
-  const sI = polar(innerR, startAngle); // 내호 시작점
-  const eI = polar(innerR, endAngle);   // 내호 끝점
-  const large = endAngle - startAngle > Math.PI ? 1 : 0;
   const f = (n: number) => n.toFixed(3);
+  const large = endAngle - startAngle > Math.PI ? 1 : 0;
+  const sO = polar(outerR, startAngle);
+  const eO = polar(outerR, endAngle);
+
+  if (innerR === 0) {
+    // 중심에서 펼쳐지는 파이 조각
+    return [
+      `M ${CX} ${CY}`,
+      `L ${f(sO.x)} ${f(sO.y)}`,
+      `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`,
+      "Z",
+    ].join(" ");
+  }
+
+  // 도넛 고리 조각: 외호(시계) → 내호(반시계)
+  const sI = polar(innerR, startAngle);
+  const eI = polar(innerR, endAngle);
   return [
     `M ${f(sO.x)} ${f(sO.y)}`,
     `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`,
@@ -88,10 +96,8 @@ function HourTicks() {
         return (
           <line
             key={h}
-            x1={p1.x}
-            y1={p1.y}
-            x2={p2.x}
-            y2={p2.y}
+            x1={p1.x} y1={p1.y}
+            x2={p2.x} y2={p2.y}
             stroke={isMajor ? "#94a3b8" : "#cbd5e1"}
             strokeWidth={isMajor ? 1.5 : 1}
           />
@@ -110,8 +116,7 @@ function HourLabels() {
         return (
           <text
             key={hour}
-            x={x}
-            y={y}
+            x={x} y={y}
             textAnchor="middle"
             dominantBaseline="central"
             fontSize={13}
@@ -128,6 +133,7 @@ function HourLabels() {
 
 interface BlockArcProps {
   block: TimeBlock;
+  innerR: number;
 }
 
 const FONT_SIZE = 13;
@@ -159,24 +165,28 @@ function splitIntoLines(text: string, maxCharsPerLine: number): string[] {
   return lines;
 }
 
-function BlockArc({ block }: BlockArcProps) {
+function BlockArc({ block, innerR }: BlockArcProps) {
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
   // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
   // 2π를 더해 시계 방향으로 이어지게 한다
   if (endAngle <= startAngle) endAngle += 2 * Math.PI;
+
   const arcAngle = endAngle - startAngle;
   const midAngle = startAngle + arcAngle / 2;
-  const { x: tx, y: ty } = polar(MID_R, midAngle);
+  // 텍스트 위치는 innerR에 따라 동적으로 계산한다 (원형 모드에서는 중심쪽으로 이동)
+  const midTextR = (OUTER_R + innerR) / 2;
+  const { x: tx, y: ty } = polar(midTextR, midAngle);
 
   // 텍스트 표시 최소 호 각도: π/24 ≈ 약 30분에 해당하는 각도
   const minAngleForText = Math.PI / 24;
-  // MID_R 위치에서의 현(chord) 길이로 텍스트 가로 여백을 추정한다.
-  // 텍스트는 가로 방향(비회전)이므로 호 길이보다 현 길이가 더 적합한 기준이다.
-  const chordWidth = 2 * Math.sin(arcAngle / 2) * MID_R;
+  // arcAngle >= π이면 호의 중앙부는 공간이 충분하므로 지름 전체를 사용한다.
+  // 작은 호에서는 현(chord) 길이로 가로 여백을 추정한다.
+  const chordWidth = arcAngle >= Math.PI
+    ? 2 * midTextR
+    : 2 * Math.sin(arcAngle / 2) * midTextR;
   const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
-  const showText =
-    block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
+  const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
 
   const lines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
 
@@ -187,7 +197,7 @@ function BlockArc({ block }: BlockArcProps) {
   return (
     <g>
       <path
-        d={annularSectorPath(INNER_R, OUTER_R, startAngle, endAngle)}
+        d={sectorPath(innerR, OUTER_R, startAngle, endAngle)}
         fill={block.color}
         stroke="white"
         strokeWidth={1}
@@ -203,11 +213,7 @@ function BlockArc({ block }: BlockArcProps) {
           style={{ pointerEvents: "none", userSelect: "none" }}
         >
           {lines.map((line, i) => (
-            <tspan
-              key={i}
-              x={tx}
-              y={ty - textBlockHalfHeight + i * LINE_HEIGHT}
-            >
+            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
             </tspan>
           ))}
@@ -217,8 +223,30 @@ function BlockArc({ block }: BlockArcProps) {
   );
 }
 
+// 도넛 아이콘: 두꺼운 테두리의 원
+function DonutIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="4" />
+    </svg>
+  );
+}
+
+// 원형 아이콘: 꽉 찬 원
+function CircleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
+      <circle cx="10" cy="10" r="9" fill="currentColor" />
+    </svg>
+  );
+}
+
 export default function TimetableCanvas() {
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
+  const [shape, setShape] = useState<Shape>("donut");
+
+  // 선택된 모양에 따라 실제 렌더링에 쓸 innerR을 결정한다
+  const innerR = shape === "donut" ? INNER_R : 0;
 
   // TimeBlockInput이 전달하는 color를 무시하고, 팔레트에서 자동 배정한다.
   // prevColor를 넘겨 같은 색이 연속으로 배정되지 않게 한다.
@@ -228,26 +256,50 @@ export default function TimetableCanvas() {
     setBlocks((prev) => [...prev, { ...block, color }]);
   }
 
+  const btnBase = "flex items-center justify-center px-3 py-1.5 rounded-md transition-colors";
+  const btnActive = "bg-white shadow-sm text-slate-700";
+  const btnInactive = "text-slate-400 hover:text-slate-600";
+
   return (
-    <div className="flex flex-col items-center gap-6 p-4">
+    <div className="flex flex-col items-center gap-4 p-4">
       <div className="w-full max-w-lg aspect-square">
         <svg viewBox="0 0 600 600" width="100%" height="100%">
           {/* 배경 원 */}
           <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
-          {/* 초기 내부 구멍: 블록 렌더링 전에 미리 흰색으로 채운다 */}
-          <circle cx={CX} cy={CY} r={INNER_R} fill="white" />
+          {/* 도넛 모드: 블록 렌더링 전에 구멍을 미리 흰색으로 채운다 */}
+          {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
 
           <HourTicks />
 
           {blocks.map((block) => (
-            <BlockArc key={block.id} block={block} />
+            <BlockArc key={block.id} block={block} innerR={innerR} />
           ))}
 
-          {/* 블록이 내부 반지름 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
-          <circle cx={CX} cy={CY} r={INNER_R} fill="white" />
+          {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
+          {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
 
           <HourLabels />
         </svg>
+      </div>
+
+      {/* 모양 토글 */}
+      <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+        <button
+          type="button"
+          className={`${btnBase} ${shape === "donut" ? btnActive : btnInactive}`}
+          onClick={() => setShape("donut")}
+          aria-label="도넛 모양"
+        >
+          <DonutIcon />
+        </button>
+        <button
+          type="button"
+          className={`${btnBase} ${shape === "circle" ? btnActive : btnInactive}`}
+          onClick={() => setShape("circle")}
+          aria-label="원형 모양"
+        >
+          <CircleIcon />
+        </button>
       </div>
 
       <div className="w-full max-w-lg">
