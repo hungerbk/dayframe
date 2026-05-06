@@ -250,9 +250,6 @@ export default function TimetableCanvas() {
           <svg viewBox="0 0 600 600" width="100%" height="100%">
             {/* 배경 원 */}
             <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
-            {/* 도넛 모드: 블록 렌더링 전에 구멍을 미리 흰색으로 채운다 */}
-            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
-
             <HourTicks />
 
             {blocks.map((block) => (
