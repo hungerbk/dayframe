@@ -19,11 +19,11 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
     e.preventDefault();
 
     if (!isValidTime(startTime)) {
-      setError("시작 시간이 올바르지 않습니다. (예: 09:00)");
+      setError("시작 시간이 올바르지 않습니다. (00:00~24:00 사이로 입력해주세요.)");
       return;
     }
     if (!isValidTime(endTime)) {
-      setError("종료 시간이 올바르지 않습니다. (예: 18:00)");
+      setError("종료 시간이 올바르지 않습니다. (00:00~24:00 사이로 입력해주세요.)");
       return;
     }
     if (!isEndAfterStart(startTime, endTime)) {
@@ -54,7 +54,10 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
           type="text"
           placeholder="00:00"
           value={startTime}
-          onChange={(e) => { setStartTime(formatTimeInput(e.target.value)); setError(""); }}
+          onChange={(e) => {
+            setStartTime(formatTimeInput(e.target.value));
+            setError("");
+          }}
         />
         <Input
           label="종료 시간"
@@ -62,7 +65,10 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
           type="text"
           placeholder="00:00"
           value={endTime}
-          onChange={(e) => { setEndTime(formatTimeInput(e.target.value)); setError(""); }}
+          onChange={(e) => {
+            setEndTime(formatTimeInput(e.target.value));
+            setError("");
+          }}
         />
       </div>
 
@@ -71,12 +77,17 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
         type="text"
         placeholder="예: 점심시간"
         value={title}
-        onChange={(e) => { setTitle(e.target.value); setError(""); }}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          setError("");
+        }}
       />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" className="mt-1">추가</Button>
+      <Button type="submit" className="mt-1">
+        추가
+      </Button>
     </form>
   );
 }
