@@ -16,7 +16,7 @@ const TICK_MINOR_INNER = OUTER_R + 4; // 일반 눈금선 안쪽 끝 반지름 (
 const TICK_MAJOR_INNER = OUTER_R + 2; // 주요 눈금선(0, 6, 12, 18시) 안쪽 끝 반지름 (더 길게)
 
 type Shape = "donut" | "circle";
-type NumberDisplay = "all" | "major" | "none";
+type NumberDisplay = "all" | "block" | "major" | "none";
 
 /**
  * HH:MM 문자열을 SVG 각도(라디안)로 변환한다.
@@ -54,13 +54,7 @@ function sectorPath(innerR: number, outerR: number, startAngle: number, endAngle
   if (arcAngle >= 2 * Math.PI - 0.001) {
     const mO = polar(outerR, startAngle + Math.PI);
     if (innerR === 0) {
-      return [
-        `M ${CX} ${CY}`,
-        `L ${f(sO.x)} ${f(sO.y)}`,
-        `A ${outerR} ${outerR} 0 1 1 ${f(mO.x)} ${f(mO.y)}`,
-        `A ${outerR} ${outerR} 0 1 1 ${f(sO.x)} ${f(sO.y)}`,
-        "Z",
-      ].join(" ");
+      return [`M ${CX} ${CY}`, `L ${f(sO.x)} ${f(sO.y)}`, `A ${outerR} ${outerR} 0 1 1 ${f(mO.x)} ${f(mO.y)}`, `A ${outerR} ${outerR} 0 1 1 ${f(sO.x)} ${f(sO.y)}`, "Z"].join(" ");
     }
     const sI = polar(innerR, startAngle);
     const mI = polar(innerR, startAngle + Math.PI);
@@ -115,11 +109,13 @@ function HourTicks() {
   );
 }
 
-
 interface HourLabelsProps {
   display: NumberDisplay;
   blocks: TimeBlock[];
 }
+
+// 주요 레이블 시각 — 'all' 모드에서 블록 시각과 중복 표시 방지에 사용
+const MAJOR_TIME_SET = new Set(["00:00", "06:00", "12:00", "18:00", "24:00"]);
 
 function HourLabels({ display, blocks }: HourLabelsProps) {
   if (display === "none") return null;
@@ -136,24 +132,28 @@ function HourLabels({ display, blocks }: HourLabelsProps) {
 
   if (display === "major") return <>{majorItems}</>;
 
-  // 'all' 모드: 블록 시작/종료 시각만 표시한다 (주요 레이블 없음).
   const blockTimes = blocks.flatMap((b) => [b.startTime, b.endTime]);
-  const uniqueBlockTimes = [...new Set(blockTimes)];
+
+  // 'block' 모드: 블록 시각만, 'all' 모드: 주요 레이블 + 블록 시각(겹치는 시각 제외)
+  const uniqueBlockTimes = [...new Set(blockTimes)].filter((t) => display === "block" || !MAJOR_TIME_SET.has(t));
+
+  const blockItems = uniqueBlockTimes.map((time) => {
+    const [h, m] = time.split(":").map(Number);
+    const angle = ((h * 60 + m) / (24 * 60)) * 2 * Math.PI - Math.PI / 2;
+    const { x, y } = polar(LABEL_R, angle);
+    // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
+    const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
+    return (
+      <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill="#94a3b8">
+        {label}
+      </text>
+    );
+  });
 
   return (
     <>
-      {uniqueBlockTimes.map((time) => {
-        const [h, m] = time.split(":").map(Number);
-        const angle = ((h * 60 + m) / (24 * 60)) * 2 * Math.PI - Math.PI / 2;
-        const { x, y } = polar(LABEL_R, angle);
-        // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
-        const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
-        return (
-          <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill="#94a3b8">
-            {label}
-          </text>
-        );
-      })}
+      {display === "all" && majorItems}
+      {blockItems}
     </>
   );
 }
@@ -303,7 +303,8 @@ export default function TimetableCanvas() {
           <ToggleGroup
             options={[
               { value: "all", label: "전체" },
-              { value: "major", label: "주요" },
+              { value: "block", label: "내 일정" },
+              { value: "major", label: "주요 시각" },
               { value: "none", label: "없음" },
             ]}
             value={numberDisplay}
