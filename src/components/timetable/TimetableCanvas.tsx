@@ -298,49 +298,53 @@ export default function TimetableCanvas() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <div className="w-full max-w-lg aspect-square">
-        <svg viewBox="0 0 600 600" width="100%" height="100%">
-          {/* 배경 원 */}
-          <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
-          {/* 도넛 모드: 블록 렌더링 전에 구멍을 미리 흰색으로 채운다 */}
-          {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
+    <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
+      {/* 왼쪽: 시계 + 컨트롤 */}
+      <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
+        <div className="w-full aspect-square max-w-[75vh]">
+          <svg viewBox="0 0 600 600" width="100%" height="100%">
+            {/* 배경 원 */}
+            <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
+            {/* 도넛 모드: 블록 렌더링 전에 구멍을 미리 흰색으로 채운다 */}
+            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
 
-          <HourTicks />
+            <HourTicks />
 
-          {blocks.map((block) => (
-            <BlockArc key={block.id} block={block} innerR={innerR} />
-          ))}
+            {blocks.map((block) => (
+              <BlockArc key={block.id} block={block} innerR={innerR} />
+            ))}
 
-          {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
-          {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
+            {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
+            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
 
-          <HourLabels display={numberDisplay} blocks={blocks} />
-        </svg>
+            <HourLabels display={numberDisplay} blocks={blocks} />
+          </svg>
+        </div>
+
+        {/* 컨트롤 */}
+        <div className="flex gap-3 flex-wrap justify-center">
+          <ToggleGroup
+            options={[
+              { value: "donut", label: <DonutIcon />, ariaLabel: "도넛 모양" },
+              { value: "circle", label: <CircleIcon />, ariaLabel: "원형 모양" },
+            ]}
+            value={shape}
+            onChange={(v) => setShape(v)}
+          />
+          <ToggleGroup
+            options={[
+              { value: "all", label: "전체" },
+              { value: "major", label: "주요" },
+              { value: "none", label: "없음" },
+            ]}
+            value={numberDisplay}
+            onChange={(v) => setNumberDisplay(v)}
+          />
+        </div>
       </div>
 
-      {/* 컨트롤 */}
-      <div className="flex gap-3 flex-wrap justify-center">
-        <ToggleGroup
-          options={[
-            { value: "donut", label: <DonutIcon />, ariaLabel: "도넛 모양" },
-            { value: "circle", label: <CircleIcon />, ariaLabel: "원형 모양" },
-          ]}
-          value={shape}
-          onChange={(v) => setShape(v)}
-        />
-        <ToggleGroup
-          options={[
-            { value: "all", label: "전체" },
-            { value: "major", label: "주요" },
-            { value: "none", label: "없음" },
-          ]}
-          value={numberDisplay}
-          onChange={(v) => setNumberDisplay(v)}
-        />
-      </div>
-
-      <div className="w-full max-w-lg">
+      {/* 오른쪽: 입력 폼 */}
+      <div className="w-full lg:w-80 shrink-0">
         <TimeBlockInput onAdd={handleAdd} />
       </div>
     </div>

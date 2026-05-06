@@ -8,7 +8,7 @@ export default function Input({ label, className, ...inputProps }: Props) {
     <label className={`flex flex-col gap-1 ${className ?? ""}`}>
       <span className="text-sm font-medium text-(--color-text)">{label}</span>
       <input
-        className="px-3 py-2 rounded-lg border border-(--color-border) bg-white text-(--color-text) placeholder-(--color-border) focus:outline-none focus:border-(--color-primary)"
+        className="w-full px-3 py-2 rounded-lg border border-(--color-border) bg-white text-(--color-text) placeholder-(--color-border) focus:outline-none focus:border-(--color-primary)"
         {...inputProps}
       />
     </label>
