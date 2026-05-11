@@ -271,7 +271,7 @@ export default function TimetableCanvas() {
       prev.map((block, i) => ({
         ...block,
         color: theme.blockColors[i % theme.blockColors.length],
-      }))
+      })),
     );
   }
 
@@ -289,7 +289,7 @@ export default function TimetableCanvas() {
   return (
     <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
-      <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
+      <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0 order-1">
         <div className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
             {/* 배경 원 */}
@@ -328,20 +328,17 @@ export default function TimetableCanvas() {
             onChange={(v) => setNumberDisplay(v)}
           />
         </div>
-
-        {/* 모바일: 컨트롤 아래 */}
-        <div className="lg:hidden">
-          <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} />
-        </div>
       </div>
 
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
-      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
-        {/* 데스크탑: 오른쪽 패널 상단 */}
-        <div className="hidden lg:block">
+      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4 order-2">
+        <div className="order-1 lg:order-0">
           <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} />
         </div>
-        <TimeBlockInput onAdd={handleAdd} />
+        {/* 입력 폼 */}
+        <div className="order-2 lg:order-0">
+          <TimeBlockInput onAdd={handleAdd} />
+        </div>
       </div>
     </div>
   );
