@@ -51,7 +51,7 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-(--color-border) bg-(--color-background)">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background">
       <div className="flex gap-3">
         <Input
           label="시작 시간"
