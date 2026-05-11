@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { TimeBlock } from "@/types";
-import { pickRandomColor } from "@/utils";
-import { CORAL_BLOCK_COLORS } from "@/constants/palettes";
+import { pickRandomColor, applyTheme } from "@/utils";
+import { THEMES } from "@/constants/palettes";
+import type { Theme } from "@/constants/palettes";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
+import ThemeSelector from "@/components/ui/ThemeSelector";
 
 // SVG 뷰박스 중심 좌표 (600×600 기준)
 const CX = 300;
@@ -257,6 +259,21 @@ export default function TimetableCanvas() {
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [shape, setShape] = useState<Shape>("donut");
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
+  const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
+
+  useEffect(() => {
+    applyTheme(selectedTheme);
+  }, [selectedTheme]);
+
+  function handleThemeSelect(theme: Theme) {
+    setSelectedTheme(theme);
+    setBlocks((prev) =>
+      prev.map((block, i) => ({
+        ...block,
+        color: theme.blockColors[i % theme.blockColors.length],
+      })),
+    );
+  }
 
   // 선택된 모양에 따라 실제 렌더링에 쓸 innerR을 결정한다
   const innerR = shape === "donut" ? INNER_R : 0;
@@ -265,7 +282,7 @@ export default function TimetableCanvas() {
   // prevColor를 넘겨 같은 색이 연속으로 배정되지 않게 한다.
   function handleAdd(block: TimeBlock) {
     const prevColor = blocks[blocks.length - 1]?.color;
-    const color = pickRandomColor(CORAL_BLOCK_COLORS, prevColor);
+    const color = pickRandomColor(selectedTheme.blockColors, prevColor);
     setBlocks((prev) => [...prev, { ...block, color }]);
   }
 
@@ -313,8 +330,10 @@ export default function TimetableCanvas() {
         </div>
       </div>
 
-      {/* 오른쪽: 입력 폼 */}
-      <div className="w-full lg:w-80 shrink-0">
+      {/* 오른쪽: 테마 선택 + 입력 폼 */}
+      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
+        <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} />
+        {/* 입력 폼 */}
         <TimeBlockInput onAdd={handleAdd} />
       </div>
     </div>
