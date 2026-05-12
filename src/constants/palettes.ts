@@ -1,13 +1,15 @@
-export type Theme = {
-  id: string
-  name: string
-  blockColors: string[]
-  ui: {
-    primary: string
-    border: string
-    background: string
-    text: string
-  }
+interface ThemeUI {
+  primary: string;
+  border: string;
+  background: string;
+  text: string;
+}
+
+export interface Theme {
+  id: string;
+  name: string;
+  blockColors: string[];
+  ui: ThemeUI;
 }
 
 export const THEMES: Theme[] = [
@@ -55,4 +57,4 @@ export const THEMES: Theme[] = [
       text: "#5B21B6",
     },
   },
-]
+];

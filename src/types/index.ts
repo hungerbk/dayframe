@@ -6,15 +6,3 @@ export interface TimeBlock {
   color: string
 }
 
-export interface ThemeUI {
-  primary: string
-  border: string
-  background: string
-  text: string
-}
-
-export interface Theme {
-  name: string
-  blockColors: string[]
-  ui: ThemeUI
-}
