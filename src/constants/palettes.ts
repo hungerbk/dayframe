@@ -2,6 +2,7 @@ interface ThemeUI {
   primary: string;
   border: string;
   background: string;
+  page: string;
   text: string;
 }
 
@@ -21,6 +22,7 @@ export const THEMES: Theme[] = [
       primary: "#FF6B6B",
       border: "#FFB3B3",
       background: "#FFF0F0",
+      page: "#FFF8F8",
       text: "#CC3333",
     },
   },
@@ -32,6 +34,7 @@ export const THEMES: Theme[] = [
       primary: "#2E8FAB",
       border: "#89D4E3",
       background: "#F0F9FF",
+      page: "#F8FCFF",
       text: "#1A6B8A",
     },
   },
@@ -43,6 +46,7 @@ export const THEMES: Theme[] = [
       primary: "#40916C",
       border: "#95D5B2",
       background: "#F0FDF4",
+      page: "#F8FEFA",
       text: "#2D6A4F",
     },
   },
@@ -54,6 +58,7 @@ export const THEMES: Theme[] = [
       primary: "#7C3AED",
       border: "#C4B5FD",
       background: "#F5F3FF",
+      page: "#FAF9FF",
       text: "#5B21B6",
     },
   },
