@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { toPng } from "html-to-image";
 
 export type DownloadSize = "square" | "mobile";
 
@@ -18,7 +17,7 @@ async function loadSketchFontCSS(): Promise<string> {
   return sketchFontCSSCache;
 }
 
-async function captureAsSvg(container: HTMLDivElement, captureColor: string): Promise<string> {
+async function captureAsPng(container: HTMLDivElement, captureColor: string): Promise<string> {
   const svg = container.querySelector("svg");
   if (!svg) throw new Error("SVG not found");
 
@@ -102,13 +101,7 @@ export function usePngDownload(bgColor: string) {
 
     try {
       const date = new Date().toISOString().slice(0, 10);
-      const squareDataUrl = removeBackground
-        ? await captureAsSvg(targetRef.current, captureColor)
-        : await toPng(targetRef.current, {
-            pixelRatio: 2,
-            backgroundColor: captureColor,
-            fontEmbedCSS: await loadSketchFontCSS(),
-          });
+      const squareDataUrl = await captureAsPng(targetRef.current, captureColor);
       const finalDataUrl =
         size === "mobile" ? await composeMobileCanvas(squareDataUrl, captureColor) : squareDataUrl;
       const link = document.createElement("a");
