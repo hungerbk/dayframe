@@ -2,6 +2,7 @@ import { useLayoutEffect } from "react";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import type { Theme } from "@/constants/palettes";
+import Button from "@/components/ui/Button";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
@@ -31,7 +32,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay } = useTimetableStorage();
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useLayoutEffect(() => {
@@ -105,6 +106,9 @@ export default function Timetable() {
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput onAdd={handleAdd} />
+        <Button variant="outline" onClick={reset} className="w-full">
+          초기화
+        </Button>
       </div>
     </div>
   );

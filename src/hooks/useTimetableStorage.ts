@@ -43,5 +43,9 @@ export function useTimetableStorage() {
     );
   }, [blocks, shape, isSketch, selectedTheme, numberDisplay]);
 
-  return { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay };
+  function reset() {
+    setBlocks([]);
+  }
+
+  return { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset };
 }
