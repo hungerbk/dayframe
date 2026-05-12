@@ -14,7 +14,7 @@ interface Props<T extends string> {
 
 export default function ToggleGroup<T extends string>({ options, value, onChange }: Props<T>) {
   return (
-    <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+    <div className="flex gap-1 bg-background rounded-lg p-1 border border-border">
       {options.map((option) => (
         <button
           key={option.value}
@@ -24,8 +24,8 @@ export default function ToggleGroup<T extends string>({ options, value, onChange
           onClick={() => onChange(option.value)}
           className={`flex items-center justify-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors
             ${value === option.value
-              ? "bg-white shadow-sm text-slate-700"
-              : "text-slate-400 hover:text-slate-600"
+              ? "bg-page shadow-sm text-text"
+              : "text-text/40 hover:text-text/70"
             }`}
         >
           {option.label}
