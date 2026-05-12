@@ -10,6 +10,8 @@ import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./
 import type { Shape, NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
+import { usePngDownload } from "@/hooks/usePngDownload";
+import DownloadButton from "@/components/ui/DownloadButton";
 
 // 도넛 아이콘: 두꺼운 테두리의 원
 function DonutIcon() {
@@ -35,6 +37,7 @@ export default function Timetable() {
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
   const [isSketch, setIsSketch] = useState(false);
+  const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useEffect(() => {
     applyTheme(selectedTheme);
@@ -63,26 +66,16 @@ export default function Timetable() {
     <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
       <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
-        <div className="w-full aspect-square max-w-[75vh]">
+        <div ref={targetRef} className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
-            {isSketch ? (
-              <SketchBackground />
-            ) : (
-              <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} />
-            )}
+            {isSketch ? <SketchBackground /> : <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} />}
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
-            {blocks.map((block) =>
-              isSketch ? (
-                <SketchBlockArc key={block.id} block={block} innerR={innerR} />
-              ) : (
-                <BlockArc key={block.id} block={block} innerR={innerR} />
-              ),
-            )}
+            {blocks.map((block) => (isSketch ? <SketchBlockArc key={block.id} block={block} innerR={innerR} /> : <BlockArc key={block.id} block={block} innerR={innerR} />))}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
-            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
+            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
             <HourLabels display={numberDisplay} blocks={blocks} isSketch={isSketch} />
@@ -109,6 +102,7 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
+          <DownloadButton isDownloading={isDownloading} onDownload={download} />
         </div>
       </div>
 
