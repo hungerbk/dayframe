@@ -112,7 +112,7 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
           fill="#1C1C1C"
           fontWeight={700}
           stroke="white"
-          strokeWidth={2}
+          strokeWidth={3}
           style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
           {titleLines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
