@@ -109,20 +109,12 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
-          <ToggleGroup
-            options={[
-              { value: "normal", label: "기본" },
-              { value: "sketch", label: "스케치" },
-            ]}
-            value={isSketch ? "sketch" : "normal"}
-            onChange={(v) => setIsSketch(v === "sketch")}
-          />
         </div>
       </div>
 
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
-        <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} />
+        <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput onAdd={handleAdd} />
       </div>
     </div>
