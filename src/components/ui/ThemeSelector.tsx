@@ -26,7 +26,9 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
             className={`w-8 h-8 rounded-full transition-all ${currentThemeId === theme.id ? "ring-2 ring-offset-2 ring-slate-400 scale-110" : "opacity-60 group-hover:opacity-100"}`}
             style={{ backgroundColor: theme.blockColors[0] }}
           />
-          <span className={`text-xs font-medium transition-colors ${currentThemeId === theme.id ? "text-text" : "text-slate-500 group-hover:text-slate-700"}`}>{theme.name}</span>
+          <span className={`text-xs font-medium transition-colors ${currentThemeId === theme.id ? "text-text group-hover:text-text/70" : "text-slate-500 group-hover:text-slate-800"}`}>
+            {theme.name}
+          </span>
         </button>
       ))}
       <button
@@ -39,7 +41,7 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
           className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110 group-hover:bg-border/30" : "border-text/20"}`}>
           <PencilIcon />
         </div>
-        <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/60" : ""}`}>sketch</span>
+        <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/70" : ""}`}>sketch</span>
       </button>
     </div>
   );
