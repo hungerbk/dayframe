@@ -32,7 +32,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset } = useTimetableStorage();
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useLayoutEffect(() => {
@@ -107,8 +107,14 @@ export default function Timetable() {
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput onAdd={handleAdd} />
         <Button variant="outline" onClick={reset} className="w-full">
-          초기화
+          내용 초기화
         </Button>
+        <Button variant="danger" onClick={fullReset} className="w-full">
+          전체 초기화
+        </Button>
+        <p className="text-xs text-center text-text/50">
+          이 서비스는 데이터를 서버에 저장하지 않고 사용자의 브라우저에만 보관합니다. 소중한 개인정보 보호를 위해 완료된 일정은 주기적으로 삭제하는 것을 권장합니다.
+        </p>
       </div>
     </div>
   );
