@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { toPng } from "html-to-image";
 
 type DownloadSize = "square" | "mobile";
@@ -26,18 +26,6 @@ export function usePngDownload(bgColor: string) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [showSizeMenu, setShowSizeMenu] = useState(false);
   const targetRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showSizeMenu) return;
-    function onClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowSizeMenu(false);
-      }
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, [showSizeMenu]);
 
   async function download(size: DownloadSize) {
     if (!targetRef.current || isDownloading) return;
@@ -62,5 +50,5 @@ export function usePngDownload(bgColor: string) {
     }
   }
 
-  return { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, menuRef, download };
+  return { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, download };
 }

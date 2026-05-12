@@ -36,7 +36,7 @@ export default function Timetable() {
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
   const [isSketch, setIsSketch] = useState(false);
-  const { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, menuRef, download } = usePngDownload(selectedTheme.ui.page);
+  const { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, download } = usePngDownload(selectedTheme.ui.page);
 
   useEffect(() => {
     applyTheme(selectedTheme);
@@ -101,7 +101,7 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
-          <div ref={menuRef} className="relative">
+          <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setShowSizeMenu(false); }}>
             <button
               type="button"
               onClick={() => !isDownloading && setShowSizeMenu((v) => !v)}
