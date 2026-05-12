@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
-import { THEMES } from "@/constants/palettes";
 import type { Theme } from "@/constants/palettes";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
 import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
-import type { Shape, NumberDisplay } from "./svgUtils";
+import type { NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
 import DownloadButton from "@/components/ui/DownloadButton";
+import { useTimetableStorage } from "@/hooks/useTimetableStorage";
 
 // 도넛 아이콘: 두꺼운 테두리의 원
 function DonutIcon() {
@@ -32,14 +32,11 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const [blocks, setBlocks] = useState<TimeBlock[]>([]);
-  const [shape, setShape] = useState<Shape>("donut");
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme } = useTimetableStorage();
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
-  const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
-  const [isSketch, setIsSketch] = useState(false);
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(selectedTheme);
   }, [selectedTheme]);
 
