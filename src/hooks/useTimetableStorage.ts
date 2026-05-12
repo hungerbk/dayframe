@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { TimeBlock } from "@/types";
-import type { Shape } from "@/components/timetable/svgUtils";
+import type { Shape, NumberDisplay } from "@/components/timetable/svgUtils";
 import { THEMES } from "@/constants/palettes";
 import type { Theme } from "@/constants/palettes";
 
@@ -11,6 +11,7 @@ interface PersistedState {
   shape: Shape;
   isSketch: boolean;
   themeId: string;
+  numberDisplay: NumberDisplay;
 }
 
 function loadFromStorage(): Partial<PersistedState> {
@@ -33,13 +34,14 @@ export function useTimetableStorage() {
   const [selectedTheme, setSelectedTheme] = useState<Theme>(
     () => THEMES.find((t) => t.id === saved.themeId) ?? THEMES[0],
   );
+  const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>(saved.numberDisplay ?? "major");
 
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id }),
+      JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id, numberDisplay }),
     );
-  }, [blocks, shape, isSketch, selectedTheme]);
+  }, [blocks, shape, isSketch, selectedTheme, numberDisplay]);
 
-  return { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme };
+  return { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay };
 }

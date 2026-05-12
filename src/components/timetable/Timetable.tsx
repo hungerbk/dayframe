@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import type { Theme } from "@/constants/palettes";
@@ -6,7 +6,6 @@ import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
 import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
-import type { NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
@@ -32,8 +31,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme } = useTimetableStorage();
-  const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useLayoutEffect(() => {
