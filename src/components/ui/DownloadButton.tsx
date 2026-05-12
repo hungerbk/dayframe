@@ -46,7 +46,7 @@ export default function DownloadButton({ isDownloading, onDownload }: Props) {
           <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        <span className="inline-block w-10 text-center">{isDownloading ? "저장 중" : "PNG"}</span>
+        <span className="inline-block w-10 text-center">PNG</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
           <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
