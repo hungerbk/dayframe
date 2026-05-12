@@ -21,7 +21,7 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
   return (
     <div className="flex gap-4 flex-wrap justify-center">
       {THEMES.map((theme) => (
-        <button key={theme.id} type="button" onClick={() => onSelect(theme)} aria-pressed={currentThemeId === theme.id} className="flex flex-col items-center gap-1 group">
+        <button key={theme.id} type="button" onClick={() => onSelect(theme)} aria-pressed={currentThemeId === theme.id} className="flex flex-col items-center gap-2 group">
           <div
             className={`w-8 h-8 rounded-full transition-all ${currentThemeId === theme.id ? "ring-2 ring-offset-2 ring-slate-400 scale-110" : "opacity-60 group-hover:opacity-100"}`}
             style={{ backgroundColor: theme.blockColors[0] }}
@@ -34,7 +34,7 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
         aria-pressed={isSketch}
         aria-label="스케치 모드"
         onClick={onSketchToggle}
-        className={`flex flex-col items-center gap-1 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
+        className={`flex flex-col items-center gap-2 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
         <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110" : "border-text/20"}`}>
           <PencilIcon />
         </div>
