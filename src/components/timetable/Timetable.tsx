@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
+import { useLayoutEffect } from "react";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
-import { THEMES } from "@/constants/palettes";
 import type { Theme } from "@/constants/palettes";
+import Button from "@/components/ui/Button";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
 import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
-import type { Shape, NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
 import DownloadButton from "@/components/ui/DownloadButton";
+import { useTimetableStorage } from "@/hooks/useTimetableStorage";
 
 // 도넛 아이콘: 두꺼운 테두리의 원
 function DonutIcon() {
@@ -32,14 +32,10 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const [blocks, setBlocks] = useState<TimeBlock[]>([]);
-  const [shape, setShape] = useState<Shape>("donut");
-  const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
-  const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
-  const [isSketch, setIsSketch] = useState(false);
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(selectedTheme);
   }, [selectedTheme]);
 
@@ -110,6 +106,15 @@ export default function Timetable() {
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput onAdd={handleAdd} />
+        <Button variant="outline" onClick={blockReset} className="w-full">
+          내용 초기화
+        </Button>
+        <Button variant="danger" onClick={fullReset} className="w-full">
+          전체 초기화
+        </Button>
+        <p className="text-xs text-center text-text/50">
+          이 서비스는 데이터를 서버에 저장하지 않고 사용자의 브라우저에만 보관합니다. 소중한 개인정보 보호를 위해 완료된 일정은 주기적으로 삭제하는 것을 권장합니다.
+        </p>
       </div>
     </div>
   );

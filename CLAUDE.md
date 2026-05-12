@@ -55,6 +55,22 @@ npm run preview   # 빌드 결과물 미리보기
 
 **모바일(9:16) 사이즈**: 정사각형 캡처 결과를 Canvas에 합성해 세로 여백을 배경색으로 채운다.
 
+### localStorage 영속성
+
+`src/hooks/useTimetableStorage.ts`에서 타임테이블 상태(`blocks`, `shape`, `isSketch`, `selectedTheme`, `numberDisplay`)를 `'timechart_timetable'` 키로 저장/복원한다.
+
+**뷰별 키 네이밍**: 뷰마다 독립된 키를 사용한다. 타임트래커는 `'timechart_tracker'`로 분리 예정.
+
+**확장 시 훅 구조**: 저장/복원/초기화 메커니즘은 뷰가 달라도 동일하므로, 타임트래커 작업 시점에 공통 로직을 `useLocalStorage<T>(key, defaultValue)`로 추출하고 두 도메인 훅이 그 위에 얹히는 구조로 리팩터링한다.
+
+```
+useLocalStorage<T>(key, defaultValue)   ← JSON 파싱, 자동 저장, clear() 담당
+  └─ useTimetableStorage  ('timechart_timetable')
+  └─ useTrackerStorage    ('timechart_tracker')
+```
+
+**`canSave` 패턴**: 저장 여부를 `canSave` ref 하나로 제어한다. `localStorage.getItem`이 null이면 false로 초기화되어 사용자가 아무것도 입력하지 않은 상태에서는 저장하지 않는다. 노출된 세터(setBlocks 등)를 호출하는 시점에 `canSave.current = true`로 바뀌어 이후부터 자동 저장이 활성화된다. `fullReset` 시에는 `false`로 되돌려 `removeItem` 후 상태 리셋이 `useEffect`를 재트리거해도 localStorage가 기본값으로 덮어써지지 않는다.
+
 ### 캡처 확장 시 주의사항
 
 타임트래커 등 새로운 뷰에서 `usePngDownload`를 재사용할 때 고려할 점:
