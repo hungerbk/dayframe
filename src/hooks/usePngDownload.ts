@@ -108,6 +108,9 @@ export function usePngDownload(bgColor: string) {
       link.download = `dayframe-${date}.png`;
       link.href = finalDataUrl;
       link.click();
+    } catch (err) {
+      console.error("PNG 다운로드 실패:", err);
+      alert("PNG 다운로드에 실패했습니다. 다시 시도해 주세요.");
     } finally {
       setIsDownloading(false);
     }
