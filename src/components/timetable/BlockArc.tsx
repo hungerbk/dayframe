@@ -31,18 +31,18 @@ export function BlockArc({ block, innerR }: BlockArcProps) {
   const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
   const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
 
-  const lines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
+  const titleLines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
 
   // 여러 줄을 세로 중앙에 맞추기 위해 첫 번째 tspan의 시작 위치를 위로 올린다.
   // 전체 텍스트 블록 높이의 절반만큼 ty에서 뺀다.
-  const textBlockHalfHeight = ((lines.length - 1) * LINE_HEIGHT) / 2;
+  const textBlockHalfHeight = ((titleLines.length - 1) * LINE_HEIGHT) / 2;
 
   return (
     <g>
       <path d={sectorPath(innerR, OUTER_R, startAngle, endAngle)} fill={block.color} stroke="white" strokeWidth={1} opacity={0.92} />
-      {lines.length > 0 && (
+      {titleLines.length > 0 && (
         <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill="white" fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
-          {lines.map((line, i) => (
+          {titleLines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
             </tspan>
@@ -74,11 +74,11 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
   const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
   const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
 
-  const lines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
+  const titleLines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
 
   // 여러 줄을 세로 중앙에 맞추기 위해 첫 번째 tspan의 시작 위치를 위로 올린다.
   // 전체 텍스트 블록 높이의 절반만큼 ty에서 뺀다.
-  const textBlockHalfHeight = ((lines.length - 1) * LINE_HEIGHT) / 2;
+  const textBlockHalfHeight = ((titleLines.length - 1) * LINE_HEIGHT) / 2;
 
   // rough.js path를 useMemo로 캐싱해 re-render 시 스케치 선이 흔들리지 않게 한다
   const roughPaths = useMemo(() => {
@@ -104,7 +104,7 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
       {roughPaths.map((p, i) => (
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
       ))}
-      {lines.length > 0 && (
+      {titleLines.length > 0 && (
         <text
           textAnchor="middle"
           dominantBaseline="central"
@@ -114,7 +114,7 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
           stroke="white"
           strokeWidth={2}
           style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
-          {lines.map((line, i) => (
+          {titleLines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
             </tspan>
