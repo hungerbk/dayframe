@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toPng } from "html-to-image";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import { THEMES } from "@/constants/palettes";
@@ -35,6 +36,28 @@ export default function Timetable() {
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
   const [isSketch, setIsSketch] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const svgContainerRef = useRef<HTMLDivElement>(null);
+
+  async function handleDownload() {
+    if (!svgContainerRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const date = new Date().toISOString().slice(0, 10);
+      const dataUrl = await toPng(svgContainerRef.current, {
+        pixelRatio: 2,
+        backgroundColor: selectedTheme.ui.page,
+        // 외부 CDN 폰트 fetch 시 CORS 우회를 위해 캐시 없이 재요청
+        fetchRequestInit: { cache: "no-cache" },
+      });
+      const link = document.createElement("a");
+      link.download = `dayframe-${date}.png`;
+      link.href = dataUrl;
+      link.click();
+    } finally {
+      setIsDownloading(false);
+    }
+  }
 
   useEffect(() => {
     applyTheme(selectedTheme);
@@ -63,7 +86,7 @@ export default function Timetable() {
     <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
       <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
-        <div className="w-full aspect-square max-w-[75vh]">
+        <div ref={svgContainerRef} className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
             {isSketch ? (
               <SketchBackground />
@@ -109,6 +132,19 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            aria-label="PNG 다운로드"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-text text-sm font-medium hover:bg-border/30 active:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            {isDownloading ? "저장 중…" : "PNG"}
+          </button>
         </div>
       </div>
 
