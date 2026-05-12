@@ -8,15 +8,16 @@ const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
 
 interface Props {
   isDownloading: boolean;
-  onDownload: (size: DownloadSize) => void;
+  onDownload: (size: DownloadSize, removeBackground: boolean) => void;
 }
 
 export default function DownloadButton({ isDownloading, onDownload }: Props) {
   const [open, setOpen] = useState(false);
+  const [removeBackground, setRemoveBackground] = useState(false);
 
   function handleSelect(size: DownloadSize) {
     setOpen(false);
-    onDownload(size);
+    onDownload(size, removeBackground);
   }
 
   return (
@@ -36,13 +37,23 @@ export default function DownloadButton({ isDownloading, onDownload }: Props) {
           <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        {isDownloading ? "저장 중" : "PNG"}
+        <span className="inline-block w-10 text-center">{isDownloading ? "저장 중" : "PNG"}</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
           <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
       {open && (
         <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-white border border-border rounded-lg shadow-md overflow-hidden z-10 min-w-30">
+          <button
+            type="button"
+            onClick={() => setRemoveBackground((v) => !v)}
+            className="w-full px-4 py-2 text-sm text-left flex items-center justify-between hover:bg-background transition-colors border-b border-border"
+          >
+            <span className={removeBackground ? "text-text" : "text-text/50"}>배경 제거</span>
+            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>
+              {removeBackground ? "켜짐" : "꺼짐"}
+            </span>
+          </button>
           {SIZE_OPTIONS.map((option, i) => (
             <button
               key={option.value}

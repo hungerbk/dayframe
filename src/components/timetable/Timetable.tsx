@@ -75,7 +75,7 @@ export default function Timetable() {
             {blocks.map((block) => (isSketch ? <SketchBlockArc key={block.id} block={block} innerR={innerR} /> : <BlockArc key={block.id} block={block} innerR={innerR} />))}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
-            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
+            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
             <HourLabels display={numberDisplay} blocks={blocks} isSketch={isSketch} />

@@ -18,6 +18,59 @@ async function loadSketchFontCSS(): Promise<string> {
   return sketchFontCSSCache;
 }
 
+async function captureAsSvg(container: HTMLDivElement, captureColor: string): Promise<string> {
+  const svg = container.querySelector("svg");
+  if (!svg) throw new Error("SVG not found");
+
+  const fontCSS = await loadSketchFontCSS();
+  const { width, height } = container.getBoundingClientRect();
+  const pw = Math.round(width * 2);
+  const ph = Math.round(height * 2);
+
+  const svgClone = svg.cloneNode(true) as SVGSVGElement;
+  svgClone.setAttribute("width", String(pw));
+  svgClone.setAttribute("height", String(ph));
+
+  // SVG 안에 스케치 폰트 embed
+  let defs = svgClone.querySelector("defs");
+  if (!defs) {
+    defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    svgClone.insertBefore(defs, svgClone.firstChild);
+  }
+  const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  styleEl.textContent = fontCSS;
+  defs.appendChild(styleEl);
+
+  // CSS 변수로 채워진 fill을 실제 색상으로 교체
+  svgClone.querySelectorAll("[data-bg-fill]").forEach((el) => {
+    el.setAttribute("fill", captureColor);
+  });
+
+  const svgStr = new XMLSerializer().serializeToString(svgClone);
+  const url = URL.createObjectURL(new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" }));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = pw;
+  canvas.height = ph;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = captureColor;
+  ctx.fillRect(0, 0, pw, ph);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, pw, ph);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("SVG 렌더링 실패"));
+    };
+    img.src = url;
+  });
+}
+
 function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -41,19 +94,23 @@ export function usePngDownload(bgColor: string) {
   const [isDownloading, setIsDownloading] = useState(false);
   const targetRef = useRef<HTMLDivElement>(null);
 
-  async function download(size: DownloadSize) {
+  async function download(size: DownloadSize, removeBackground: boolean) {
     if (!targetRef.current || isDownloading) return;
     setIsDownloading(true);
+
+    const captureColor = removeBackground ? "#ffffff" : bgColor;
+
     try {
       const date = new Date().toISOString().slice(0, 10);
-      const fontEmbedCSS = await loadSketchFontCSS();
-      const squareDataUrl = await toPng(targetRef.current, {
-        pixelRatio: 2,
-        backgroundColor: bgColor,
-        fontEmbedCSS,
-      });
+      const squareDataUrl = removeBackground
+        ? await captureAsSvg(targetRef.current, captureColor)
+        : await toPng(targetRef.current, {
+            pixelRatio: 2,
+            backgroundColor: captureColor,
+            fontEmbedCSS: await loadSketchFontCSS(),
+          });
       const finalDataUrl =
-        size === "mobile" ? await composeMobileCanvas(squareDataUrl, bgColor) : squareDataUrl;
+        size === "mobile" ? await composeMobileCanvas(squareDataUrl, captureColor) : squareDataUrl;
       const link = document.createElement("a");
       link.download = `dayframe-${date}.png`;
       link.href = finalDataUrl;
