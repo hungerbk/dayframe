@@ -1,9 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "RoughlyWrittenJunwoo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/RFjunwooo.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-primary: var(--theme-primary);
   --color-border: var(--theme-border);
   --color-background: var(--theme-background);
+  --color-page: var(--theme-page);
   --color-text: var(--theme-text);
 }
 
@@ -11,5 +19,10 @@
   --theme-primary: #ff6b6b;
   --theme-border: #ffb3b3;
   --theme-background: #fff5f5;
+  --theme-page: #fff8f8;
   --theme-text: #3d1a1a;
+}
+
+button {
+  cursor: pointer;
 }

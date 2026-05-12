@@ -1,9 +1,9 @@
-import TimetableCanvas from "@/components/timetable/TimetableCanvas";
+import Timetable from "@/components/timetable/Timetable";
 
 function App() {
   return (
-    <main className="min-h-screen flex items-center justify-center">
-      <TimetableCanvas />
+    <main className="min-h-screen flex items-center justify-center bg-page transition-colors duration-300">
+      <Timetable />
     </main>
   );
 }

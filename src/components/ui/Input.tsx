@@ -1,7 +1,7 @@
-type Props = {
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   className?: string;
-} & React.InputHTMLAttributes<HTMLInputElement>;
+}
 
 export default function Input({ label, className, ...inputProps }: Props) {
   return (

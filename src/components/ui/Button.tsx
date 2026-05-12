@@ -1,7 +1,7 @@
-type Props = {
+interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
+}
 
 export default function Button({ children, className, ...buttonProps }: Props) {
   return (

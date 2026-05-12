@@ -5,12 +5,10 @@ import Input from "./Input";
 import Button from "./Button";
 
 interface Props {
-  onAdd: (block: TimeBlock) => void;
-  // TODO: #4 테마 구현 시 theme에서 color 주입으로 변경
-  color?: string;
+  onAdd: (block: Omit<TimeBlock, "color">) => void;
 }
 
-export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
+export default function TimeBlockInput({ onAdd }: Props) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [title, setTitle] = useState("");
@@ -41,7 +39,6 @@ export default function TimeBlockInput({ onAdd, color = "#ff6b6b" }: Props) {
       startTime,
       endTime,
       title: title.trim() || undefined,
-      color,
     });
 
     setStartTime("");
