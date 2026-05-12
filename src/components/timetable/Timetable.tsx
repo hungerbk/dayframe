@@ -29,7 +29,7 @@ function CircleIcon() {
   );
 }
 
-export default function TimetableCanvas() {
+export default function Timetable() {
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [shape, setShape] = useState<Shape>("donut");
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
