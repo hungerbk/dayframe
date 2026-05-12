@@ -31,7 +31,7 @@ export default function DownloadButton({ isDownloading, onDownload }: Props) {
         disabled={isDownloading}
         aria-label="PNG 다운로드"
         aria-expanded={open}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-text text-sm font-medium hover:bg-border/30 active:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border bg-background text-text text-sm font-medium hover:bg-border/30 active:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
