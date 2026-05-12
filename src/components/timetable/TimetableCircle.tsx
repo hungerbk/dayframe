@@ -35,16 +35,19 @@ const MAJOR_TIME_SET = new Set(["00:00", "06:00", "12:00", "18:00", "24:00"]);
 interface HourLabelsProps {
   display: NumberDisplay;
   blocks: TimeBlock[];
+  isSketch?: boolean;
 }
 
-export function HourLabels({ display, blocks }: HourLabelsProps) {
+export function HourLabels({ display, blocks, isSketch = false }: HourLabelsProps) {
   if (display === "none") return null;
+
+  const sketchFont = isSketch ? "RoughlyWrittenJunwoo, cursive" : undefined;
 
   const majorItems = HOUR_LABELS.map(({ hour, label }) => {
     const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
     const { x, y } = polar(LABEL_R, angle);
     return (
-      <text key={`major-${hour}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill={COLOR_LABEL_MAJOR}>
+      <text key={`major-${hour}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={isSketch ? 16 : 13} fontWeight={600} fill={isSketch ? "#5C4A2A" : COLOR_LABEL_MAJOR} fontFamily={sketchFont}>
         {label}
       </text>
     );
@@ -64,7 +67,7 @@ export function HourLabels({ display, blocks }: HourLabelsProps) {
     // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
     const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
     return (
-      <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill={COLOR_LABEL_BLOCK}>
+      <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={isSketch ? 13 : 11} fontWeight={500} fill={isSketch ? "#5C4A2A" : COLOR_LABEL_BLOCK} fontFamily={sketchFont}>
         {label}
       </text>
     );

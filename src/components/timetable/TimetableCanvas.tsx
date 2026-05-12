@@ -85,7 +85,7 @@ export default function TimetableCanvas() {
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
-            <HourLabels display={numberDisplay} blocks={blocks} />
+            <HourLabels display={numberDisplay} blocks={blocks} isSketch={isSketch} />
           </svg>
         </div>
 
