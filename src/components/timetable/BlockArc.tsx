@@ -105,7 +105,15 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
       ))}
       {lines.length > 0 && (
-        <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill="#1C1C1C" fontWeight={700} style={{ pointerEvents: "none", userSelect: "none" }}>
+        <text
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={FONT_SIZE}
+          fill="#1C1C1C"
+          fontWeight={700}
+          stroke="white"
+          strokeWidth={2}
+          style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
           {lines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
