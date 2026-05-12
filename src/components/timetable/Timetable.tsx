@@ -32,7 +32,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset, fullReset } = useTimetableStorage();
+  const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useLayoutEffect(() => {
@@ -106,7 +106,7 @@ export default function Timetable() {
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput onAdd={handleAdd} />
-        <Button variant="outline" onClick={reset} className="w-full">
+        <Button variant="outline" onClick={blockReset} className="w-full">
           내용 초기화
         </Button>
         <Button variant="danger" onClick={fullReset} className="w-full">

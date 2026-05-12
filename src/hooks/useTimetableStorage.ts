@@ -43,7 +43,7 @@ export function useTimetableStorage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id, numberDisplay }));
   }, [blocks, shape, isSketch, selectedTheme, numberDisplay]);
 
-  function reset() {
+  function blockReset() {
     canSave.current = true;
     setBlocks([]);
   }
@@ -69,7 +69,7 @@ export function useTimetableStorage() {
     setSelectedTheme: (v: SetStateAction<Theme>) => { canSave.current = true; setSelectedTheme(v); },
     numberDisplay,
     setNumberDisplay: (v: SetStateAction<NumberDisplay>) => { canSave.current = true; setNumberDisplay(v); },
-    reset,
+    blockReset,
     fullReset,
   };
 }
