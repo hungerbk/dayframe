@@ -47,11 +47,21 @@ npm run preview   # 빌드 결과물 미리보기
 
 `src/hooks/usePngDownload.ts`에 다운로드 로직이 집중되어 있으며, `{ isDownloading, targetRef, download }` 를 반환한다. UI는 `src/components/ui/DownloadButton.tsx`가 담당한다.
 
-**일반 캡처**: `html-to-image`의 `toPng`를 사용한다 (`pixelRatio: 2`). 스케치 모드 폰트(`RoughlyWrittenJunwoo`)는 CDN에서 최초 1회 fetch해 Base64로 변환한 뒤 모듈 레벨 변수에 캐싱하고, `fontEmbedCSS` 옵션으로 주입한다.
+**캡처 방식**: 외부 라이브러리 없이 `XMLSerializer`로 SVG를 직렬화한 뒤 Canvas에 렌더링한다. DOM을 전혀 건드리지 않아 화면 깜빡임이 없고, 배경색·폰트 처리를 완전히 제어할 수 있다. (`pixelRatio: 2`에 해당하는 2배 해상도로 캡처)
 
-**배경 제거 캡처**: html-to-image 대신 `XMLSerializer`로 SVG를 직렬화해 Canvas에 렌더링하는 방식을 사용한다. DOM을 건드리지 않아 화면 깜빡임이 없다. 배경색으로 채워야 하는 요소(`도넛 내부 원`)에는 `data-bg-fill` 속성을 마킹하고, 직렬화 시 해당 속성으로 셀렉팅해 색상을 교체한다.
+**폰트 임베딩**: 스케치 모드 폰트(`RoughlyWrittenJunwoo`)는 최초 1회 CDN에서 fetch해 Base64로 변환한 뒤 모듈 레벨 변수에 캐싱한다. 직렬화 전 SVG 클론의 `<defs><style>` 안에 `@font-face`로 주입한다.
+
+**CSS 변수 처리**: SVG가 DOM에서 분리되면 `var(--color-*)` 같은 CSS 변수가 해석되지 않는다. 캡처 시 색상을 교체해야 하는 요소에는 `data-bg-fill` 속성을 마킹하고, 직렬화 직전에 실제 색상으로 교체한다. **새로운 SVG 요소를 추가할 때 CSS 변수로 색상을 지정한다면 반드시 이 속성을 함께 붙여야 한다.**
 
 **모바일(9:16) 사이즈**: 정사각형 캡처 결과를 Canvas에 합성해 세로 여백을 배경색으로 채운다.
+
+### 캡처 확장 시 주의사항
+
+타임트래커 등 새로운 뷰에서 `usePngDownload`를 재사용할 때 고려할 점:
+
+- **SVG 외부 HTML은 캡처되지 않는다.** 제목, 범례 등 텍스트를 함께 캡처하려면 SVG 내부의 `<text>` 요소로 구성해야 한다. HTML 요소를 함께 캡처해야 한다면 `foreignObject`를 쓰거나 별도의 캡처 전략이 필요하다.
+- **이미지(배경 이미지 등)를 SVG 안에 삽입할 경우** CORS 제약으로 Canvas가 오염(tainted)될 수 있다. 외부 이미지는 서버 측 프록시나 blob URL 변환을 거쳐야 한다.
+- **CSS 변수로 색상을 지정한 SVG 요소**는 직렬화 후 색상이 사라진다. `data-bg-fill` 패턴처럼 별도 속성으로 마킹하고 `captureAsPng` 내부에서 교체 처리를 추가해야 한다.
 
 ## 코딩 컨벤션
 
