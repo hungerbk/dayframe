@@ -34,11 +34,11 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
         aria-pressed={isSketch}
         aria-label="스케치 모드"
         onClick={onSketchToggle}
-        className={`flex flex-col items-center gap-2 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
-        <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110" : "border-text/20"}`}>
+        className={`group flex flex-col items-center gap-2 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
+        <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110 group-hover:bg-border/30" : "border-text/20"}`}>
           <PencilIcon />
         </div>
-        <span className="text-xs font-medium">sketch</span>
+        <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/60" : ""}`}>sketch</span>
       </button>
     </div>
   );
