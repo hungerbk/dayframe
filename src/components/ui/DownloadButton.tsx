@@ -1,6 +1,15 @@
 import { useState } from "react";
 import type { DownloadSize } from "@/hooks/usePngDownload";
 
+function MenuItem({ onClick, border, children }: { onClick: () => void; border?: "top" | "bottom"; children: React.ReactNode }) {
+  const borderClass = border === "bottom" ? "border-b border-border" : border === "top" ? "border-t border-border" : "";
+  return (
+    <button type="button" onClick={onClick} className={`w-full px-4 py-2 text-sm text-text text-left flex items-center justify-between hover:bg-background transition-colors ${borderClass}`}>
+      {children}
+    </button>
+  );
+}
+
 const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
   { value: "square", label: "정사각형" },
   { value: "mobile", label: "모바일 (9:16)" },
@@ -44,24 +53,14 @@ export default function DownloadButton({ isDownloading, onDownload }: Props) {
       </button>
       {open && (
         <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-white border border-border rounded-lg shadow-md overflow-hidden z-10 min-w-30">
-          <button
-            type="button"
-            onClick={() => setRemoveBackground((v) => !v)}
-            className="w-full px-4 py-2 text-sm text-left flex items-center justify-between hover:bg-background transition-colors border-b border-border"
-          >
+          <MenuItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
             <span className={removeBackground ? "text-text" : "text-text/50"}>배경 제거</span>
-            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>
-              {removeBackground ? "켜짐" : "꺼짐"}
-            </span>
-          </button>
+            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? "켜짐" : "꺼짐"}</span>
+          </MenuItem>
           {SIZE_OPTIONS.map((option, i) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => handleSelect(option.value)}
-              className={`w-full px-4 py-2 text-sm text-text text-left hover:bg-background transition-colors ${i > 0 ? "border-t border-border" : ""}`}>
+            <MenuItem key={option.value} onClick={() => handleSelect(option.value)} border={i > 0 ? "top" : undefined}>
               {option.label}
-            </button>
+            </MenuItem>
           ))}
         </div>
       )}
