@@ -17,11 +17,10 @@ async function loadSketchFontCSS(): Promise<string> {
   return sketchFontCSSCache;
 }
 
-async function captureAsPng(container: HTMLDivElement, captureColor: string): Promise<string> {
+async function captureAsPng(container: HTMLDivElement, captureColor: string, isSketch: boolean): Promise<string> {
   const svg = container.querySelector("svg");
   if (!svg) throw new Error("SVG not found");
 
-  const fontCSS = await loadSketchFontCSS();
   const { width, height } = container.getBoundingClientRect();
   const pw = Math.round(width * 2);
   const ph = Math.round(height * 2);
@@ -30,15 +29,18 @@ async function captureAsPng(container: HTMLDivElement, captureColor: string): Pr
   svgClone.setAttribute("width", String(pw));
   svgClone.setAttribute("height", String(ph));
 
-  // SVG 안에 스케치 폰트 embed
-  let defs = svgClone.querySelector("defs");
-  if (!defs) {
-    defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    svgClone.insertBefore(defs, svgClone.firstChild);
+  // 스케치 모드일 때만 폰트 embed
+  if (isSketch) {
+    const fontCSS = await loadSketchFontCSS();
+    let defs = svgClone.querySelector("defs");
+    if (!defs) {
+      defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      svgClone.insertBefore(defs, svgClone.firstChild);
+    }
+    const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    styleEl.textContent = fontCSS;
+    defs.appendChild(styleEl);
   }
-  const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
-  styleEl.textContent = fontCSS;
-  defs.appendChild(styleEl);
 
   // CSS 변수로 채워진 fill을 실제 색상으로 교체
   svgClone.querySelectorAll("[data-bg-fill]").forEach((el) => {
@@ -89,7 +91,7 @@ function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<st
   });
 }
 
-export function usePngDownload(bgColor: string) {
+export function usePngDownload(bgColor: string, isSketch: boolean) {
   const [isDownloading, setIsDownloading] = useState(false);
   const targetRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +103,7 @@ export function usePngDownload(bgColor: string) {
 
     try {
       const date = new Date().toISOString().slice(0, 10);
-      const squareDataUrl = await captureAsPng(targetRef.current, captureColor);
+      const squareDataUrl = await captureAsPng(targetRef.current, captureColor, isSketch);
       const finalDataUrl =
         size === "mobile" ? await composeMobileCanvas(squareDataUrl, captureColor) : squareDataUrl;
       const link = document.createElement("a");

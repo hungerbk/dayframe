@@ -37,7 +37,7 @@ export default function Timetable() {
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
   const [isSketch, setIsSketch] = useState(false);
-  const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page);
+  const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
 
   useEffect(() => {
     applyTheme(selectedTheme);
