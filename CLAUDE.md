@@ -69,7 +69,7 @@ useLocalStorage<T>(key, defaultValue)   ← JSON 파싱, 자동 저장, clear() 
   └─ useTrackerStorage    ('timechart_tracker')
 ```
 
-**전체 초기화(`fullReset`)의 suppressSave 패턴**: `fullReset` 호출 시 상태를 기본값으로 리셋하면 `useEffect`가 즉시 재트리거되어 localStorage가 기본값으로 덮어써진다. 이를 막기 위해 `suppressSave` ref를 `true`로 세운 뒤 `removeItem`하고, `useEffect` 내에서 플래그를 확인해 한 사이클만 저장을 건너뛴다.
+**`canSave` 패턴**: 저장 여부를 `canSave` ref 하나로 제어한다. `localStorage.getItem`이 null이면 false로 초기화되어 사용자가 아무것도 입력하지 않은 상태에서는 저장하지 않는다. 노출된 세터(setBlocks 등)를 호출하는 시점에 `canSave.current = true`로 바뀌어 이후부터 자동 저장이 활성화된다. `fullReset` 시에는 `false`로 되돌려 `removeItem` 후 상태 리셋이 `useEffect`를 재트리거해도 localStorage가 기본값으로 덮어써지지 않는다.
 
 ### 캡처 확장 시 주의사항
 
