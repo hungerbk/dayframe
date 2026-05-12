@@ -40,7 +40,11 @@ export function useTimetableStorage() {
 
   useEffect(() => {
     if (!canSave.current) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id, numberDisplay }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id, numberDisplay }));
+    } catch {
+      // 저장 공간 부족 또는 브라우저 보안 설정으로 저장 실패 시 무시
+    }
   }, [blocks, shape, isSketch, selectedTheme, numberDisplay]);
 
   function blockReset() {
