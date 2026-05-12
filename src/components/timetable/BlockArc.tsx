@@ -96,8 +96,7 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
       fillWeight: 1.2,
     });
     return generator.toPaths(drawable);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [block.id, block.color, block.startTime, block.endTime, innerR]);
+  }, [block.color, innerR, startAngle, endAngle]);
 
   return (
     <g>
