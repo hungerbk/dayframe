@@ -43,6 +43,16 @@ npm run preview   # 빌드 결과물 미리보기
 
 `shape` 상태(`"donut" | "circle"`)에 따라 `innerR`이 `INNER_R`(105) 또는 0으로 결정된다. 이 값이 `sectorPath`와 텍스트 중앙 위치 계산에 모두 전달된다. 도넛 구멍은 같은 색의 원을 위에 덮는 방식으로 구현된다.
 
+### PNG 다운로드
+
+`src/hooks/usePngDownload.ts`에 다운로드 로직이 집중되어 있으며, `{ isDownloading, targetRef, download }` 를 반환한다. UI는 `src/components/ui/DownloadButton.tsx`가 담당한다.
+
+**일반 캡처**: `html-to-image`의 `toPng`를 사용한다 (`pixelRatio: 2`). 스케치 모드 폰트(`RoughlyWrittenJunwoo`)는 CDN에서 최초 1회 fetch해 Base64로 변환한 뒤 모듈 레벨 변수에 캐싱하고, `fontEmbedCSS` 옵션으로 주입한다.
+
+**배경 제거 캡처**: html-to-image 대신 `XMLSerializer`로 SVG를 직렬화해 Canvas에 렌더링하는 방식을 사용한다. DOM을 건드리지 않아 화면 깜빡임이 없다. 배경색으로 채워야 하는 요소(`도넛 내부 원`)에는 `data-bg-fill` 속성을 마킹하고, 직렬화 시 해당 속성으로 셀렉팅해 색상을 교체한다.
+
+**모바일(9:16) 사이즈**: 정사각형 캡처 결과를 Canvas에 합성해 세로 여백을 배경색으로 채운다.
+
 ## 코딩 컨벤션
 
 - 경로 별칭 `@/` → `src/` (vite.config의 `resolve.alias`)
