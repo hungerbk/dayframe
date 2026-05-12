@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type SetStateAction } from "react";
 import type { TimeBlock } from "@/types";
 import type { Shape, NumberDisplay } from "@/components/timetable/svgUtils";
 import { THEMES } from "@/constants/palettes";
@@ -33,24 +33,23 @@ export function useTimetableStorage() {
   const [isSketch, setIsSketch] = useState<boolean>(saved.isSketch ?? false);
   const [selectedTheme, setSelectedTheme] = useState<Theme>(() => THEMES.find((t) => t.id === saved.themeId) ?? THEMES[0]);
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>(saved.numberDisplay ?? "major");
-  // fullReset 직후 상태 변경이 useEffect를 재트리거해 localStorage가 기본값으로 덮어써지는 것을 막기 위한 플래그.
-  // fullReset에서 true로 세우면 다음 useEffect 실행 한 번만 저장을 건너뛴다.
-  const suppressSave = useRef(false);
+  // localStorage에 데이터가 있을 때만 저장한다.
+  // getItem이 null이면 아직 사용자가 아무것도 입력하지 않은 상태이므로 저장을 건너뛴다.
+  // 세터를 호출하는 시점에 true로 바뀌며, fullReset 시 false로 되돌아간다.
+  const canSave = useRef(localStorage.getItem(STORAGE_KEY) !== null);
 
   useEffect(() => {
-    if (suppressSave.current) {
-      suppressSave.current = false;
-      return;
-    }
+    if (!canSave.current) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ blocks, shape, isSketch, themeId: selectedTheme.id, numberDisplay }));
   }, [blocks, shape, isSketch, selectedTheme, numberDisplay]);
 
   function reset() {
+    canSave.current = true;
     setBlocks([]);
   }
 
   function fullReset() {
-    suppressSave.current = true;
+    canSave.current = false;
     localStorage.removeItem(STORAGE_KEY);
     setBlocks([]);
     setShape("donut");
@@ -59,5 +58,18 @@ export function useTimetableStorage() {
     setNumberDisplay("major");
   }
 
-  return { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, reset, fullReset };
+  return {
+    blocks,
+    setBlocks: (v: SetStateAction<TimeBlock[]>) => { canSave.current = true; setBlocks(v); },
+    shape,
+    setShape: (v: SetStateAction<Shape>) => { canSave.current = true; setShape(v); },
+    isSketch,
+    setIsSketch: (v: SetStateAction<boolean>) => { canSave.current = true; setIsSketch(v); },
+    selectedTheme,
+    setSelectedTheme: (v: SetStateAction<Theme>) => { canSave.current = true; setSelectedTheme(v); },
+    numberDisplay,
+    setNumberDisplay: (v: SetStateAction<NumberDisplay>) => { canSave.current = true; setNumberDisplay(v); },
+    reset,
+    fullReset,
+  };
 }
