@@ -3,6 +3,21 @@ import { toPng } from "html-to-image";
 
 export type DownloadSize = "square" | "mobile";
 
+const SKETCH_FONT_URL = "https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/RFjunwooo.woff2";
+let sketchFontCSSCache: string | null = null;
+
+async function loadSketchFontCSS(): Promise<string> {
+  if (sketchFontCSSCache) return sketchFontCSSCache;
+  const blob = await fetch(SKETCH_FONT_URL).then((r) => r.blob());
+  const dataUrl = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+  sketchFontCSSCache = `@font-face { font-family: "RoughlyWrittenJunwoo"; src: url("${dataUrl}") format("woff2"); }`;
+  return sketchFontCSSCache;
+}
+
 function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -31,11 +46,11 @@ export function usePngDownload(bgColor: string) {
     setIsDownloading(true);
     try {
       const date = new Date().toISOString().slice(0, 10);
+      const fontEmbedCSS = await loadSketchFontCSS();
       const squareDataUrl = await toPng(targetRef.current, {
         pixelRatio: 2,
         backgroundColor: bgColor,
-        // 외부 CDN 폰트 fetch 시 CORS 우회를 위해 캐시 없이 재요청
-        fetchRequestInit: { cache: "no-cache" },
+        fontEmbedCSS,
       });
       const finalDataUrl =
         size === "mobile" ? await composeMobileCanvas(squareDataUrl, bgColor) : squareDataUrl;
