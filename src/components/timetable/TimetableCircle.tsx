@@ -82,6 +82,7 @@ export const SketchBackground = memo(function SketchBackground() {
   const paths = useMemo(() => {
     const drawable = generator.circle(CX, CY, OUTER_R * 2, {
       roughness: 1.8,
+      seed: 1,
       stroke: "#8B7355",
       strokeWidth: 1.5,
       fill: "#FEFCF0",
@@ -109,6 +110,7 @@ export const SketchHourTicks = memo(function SketchHourTicks() {
       const p2 = polar(TICK_OUTER, angle);
       const drawable = generator.line(p1.x, p1.y, p2.x, p2.y, {
         roughness: 1.0,
+        seed: h + 1,
         stroke: isMajor ? "#94a3b8" : "#cbd5e1",
         strokeWidth: isMajor ? 1.5 : 1,
       });
@@ -130,6 +132,7 @@ export function SketchCircleStroke({ r }: { r: number }) {
   const paths = useMemo(() => {
     const drawable = generator.circle(CX, CY, r * 2, {
       roughness: 1.8,
+      seed: 2,
       stroke: "#8B7355",
       strokeWidth: 1.5,
       fill: "none",

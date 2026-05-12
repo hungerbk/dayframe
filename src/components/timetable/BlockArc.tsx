@@ -85,6 +85,7 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
     const pathData = sectorPath(innerR, OUTER_R, startAngle, endAngle);
     const drawable = generator.path(pathData, {
       roughness: 1.5,
+      seed: 1,
       bowing: 0.8,
       stroke: block.color,
       strokeWidth: 1.5,
