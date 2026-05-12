@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT } from "./svgUtils";
+import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
 
 const generator = rough.generator();
 
@@ -39,9 +39,9 @@ export function BlockArc({ block, innerR }: BlockArcProps) {
 
   return (
     <g>
-      <path d={sectorPath(innerR, OUTER_R, startAngle, endAngle)} fill={block.color} stroke="white" strokeWidth={1} opacity={0.92} />
+      <path d={sectorPath(innerR, OUTER_R, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
       {titleLines.length > 0 && (
-        <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill="white" fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
+        <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill={COLOR_BLOCK_TEXT} fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
           {titleLines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
               {line}
@@ -108,9 +108,9 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={FONT_SIZE}
-          fill="#1C1C1C"
+          fill={COLOR_SKETCH_BLOCK_TEXT}
           fontWeight={700}
-          stroke="white"
+          stroke={COLOR_BLOCK_TEXT}
           strokeWidth={3}
           style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
           {titleLines.map((line, i) => (

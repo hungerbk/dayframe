@@ -11,11 +11,18 @@ export const FONT_SIZE = 13;
 export const CHAR_WIDTH = 12; // 한글/영문 혼합 기준 글자당 평균 px (font-size 13 기준)
 export const LINE_HEIGHT = 18; // 줄 간격 px
 
-export const COLOR_RING_STROKE = "#cbd5e1";  // 원 테두리
-export const COLOR_TICK_MINOR = "#94a3b8";   // 보조 눈금 (1시간 단위)
-export const COLOR_TICK_MAJOR = "#64748b";   // 주요 눈금 (0, 6, 12, 18시)
-export const COLOR_LABEL_MAJOR = "#475569";  // 주요 시각 레이블 (0, 6, 12, 18)
-export const COLOR_LABEL_BLOCK = "#64748b";  // 블록 시각 레이블
+export const COLOR_RING_STROKE = "#cbd5e1";       // 원 테두리
+export const COLOR_TICK_MINOR = "#94a3b8";        // 보조 눈금 (1시간 단위)
+export const COLOR_TICK_MAJOR = "#64748b";        // 주요 눈금 (0, 6, 12, 18시)
+export const COLOR_LABEL_MAJOR = "#475569";       // 주요 시각 레이블 (0, 6, 12, 18)
+export const COLOR_LABEL_BLOCK = "#64748b";       // 블록 시각 레이블
+export const COLOR_CIRCLE_BG = "#f8fafc";         // 일반 원 배경
+export const COLOR_ARC_SEPARATOR = "#ffffff"; // 아크 구분선
+export const COLOR_BLOCK_TEXT = "#ffffff";    // 블록 위 텍스트
+export const COLOR_SKETCH_STROKE = "#8B7355";     // 스케치 테두리·눈금
+export const COLOR_SKETCH_TEXT = "#5C4A2A";       // 스케치 텍스트
+export const COLOR_SKETCH_BG = "#FEFCF0";         // 스케치 배경
+export const COLOR_SKETCH_BLOCK_TEXT = "#1C1C1C"; // 스케치 블록 텍스트
 
 export type Shape = "donut" | "circle";
 export type NumberDisplay = "all" | "block" | "major" | "none";

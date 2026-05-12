@@ -6,7 +6,7 @@ import type { Theme } from "@/constants/palettes";
 import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
-import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE } from "./svgUtils";
+import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
 import type { Shape, NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
@@ -68,7 +68,7 @@ export default function Timetable() {
             {isSketch ? (
               <SketchBackground />
             ) : (
-              <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke={COLOR_RING_STROKE} strokeWidth={1} />
+              <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} />
             )}
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
