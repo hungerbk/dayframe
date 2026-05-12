@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { toPng } from "html-to-image";
 
-type DownloadSize = "square" | "mobile";
+export type DownloadSize = "square" | "mobile";
 
 function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<string> {
   return new Promise((resolve) => {
