@@ -278,9 +278,7 @@ export default function TimetableCanvas() {
   // 선택된 모양에 따라 실제 렌더링에 쓸 innerR을 결정한다
   const innerR = shape === "donut" ? INNER_R : 0;
 
-  // TimeBlockInput이 전달하는 color를 무시하고, 팔레트에서 자동 배정한다.
-  // prevColor를 넘겨 같은 색이 연속으로 배정되지 않게 한다.
-  function handleAdd(block: TimeBlock) {
+  function handleAdd(block: Omit<TimeBlock, "color">) {
     const prevColor = blocks[blocks.length - 1]?.color;
     const color = pickRandomColor(selectedTheme.blockColors, prevColor);
     setBlocks((prev) => [...prev, { ...block, color }]);
