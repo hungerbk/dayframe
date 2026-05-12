@@ -82,7 +82,7 @@ export default function TimetableCanvas() {
             )}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
-            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
+            {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" stroke={isSketch ? "none" : "#e2e8f0"} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
             <HourLabels display={numberDisplay} blocks={blocks} />
