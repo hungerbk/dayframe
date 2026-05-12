@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
+import rough from "roughjs";
+
+const generator = rough.generator();
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import { THEMES } from "@/constants/palettes";
@@ -237,6 +240,124 @@ function BlockArc({ block, innerR }: BlockArcProps) {
   );
 }
 
+const SketchBackground = memo(function SketchBackground() {
+  const paths = useMemo(() => {
+    const drawable = generator.circle(CX, CY, OUTER_R * 2, {
+      roughness: 1.8,
+      stroke: "#8B7355",
+      strokeWidth: 1.5,
+      fill: "#FEFCF0",
+      fillStyle: "solid",
+    });
+    return generator.toPaths(drawable);
+  }, []);
+  return (
+    <g>
+      {paths.map((p, i) => (
+        <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "#FEFCF0"} />
+      ))}
+    </g>
+  );
+});
+
+
+const SketchHourTicks = memo(function SketchHourTicks() {
+  const allPaths = useMemo(() => {
+    return Array.from({ length: 24 }, (_, h) => {
+      const angle = (h / 24) * 2 * Math.PI - Math.PI / 2;
+      const isMajor = h % 6 === 0;
+      const inner = isMajor ? TICK_MAJOR_INNER : TICK_MINOR_INNER;
+      const p1 = polar(inner, angle);
+      const p2 = polar(TICK_OUTER, angle);
+      const drawable = generator.line(p1.x, p1.y, p2.x, p2.y, {
+        roughness: 1.0,
+        stroke: isMajor ? "#94a3b8" : "#cbd5e1",
+        strokeWidth: isMajor ? 1.5 : 1,
+      });
+      return { tickPaths: generator.toPaths(drawable), h };
+    });
+  }, []);
+  return (
+    <>
+      {allPaths.flatMap(({ tickPaths, h }) =>
+        tickPaths.map((p, i) => (
+          <path key={`${h}-${i}`} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill="none" />
+        )),
+      )}
+    </>
+  );
+});
+
+function SketchBlockArc({ block, innerR }: BlockArcProps) {
+  const startAngle = timeToAngle(block.startTime);
+  let endAngle = timeToAngle(block.endTime);
+  if (endAngle <= startAngle) endAngle += 2 * Math.PI;
+
+  const arcAngle = endAngle - startAngle;
+  const midAngle = startAngle + arcAngle / 2;
+  const midTextR = (OUTER_R + innerR) / 2;
+  const { x: tx, y: ty } = polar(midTextR, midAngle);
+  const minAngleForText = Math.PI / 24;
+  const chordWidth = arcAngle >= Math.PI ? 2 * midTextR : 2 * Math.sin(arcAngle / 2) * midTextR;
+  const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
+  const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
+  const lines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
+  const textBlockHalfHeight = ((lines.length - 1) * LINE_HEIGHT) / 2;
+
+  const roughPaths = useMemo(() => {
+    const pathData = sectorPath(innerR, OUTER_R, startAngle, endAngle);
+    const drawable = generator.path(pathData, {
+      roughness: 1.5,
+      bowing: 0.8,
+      stroke: block.color,
+      strokeWidth: 1.5,
+      fill: block.color,
+      fillStyle: "hachure",
+      hachureGap: 8,
+      hachureAngle: 45,
+      fillWeight: 1.2,
+    });
+    return generator.toPaths(drawable);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [block.id, block.color, block.startTime, block.endTime, innerR]);
+
+  return (
+    <g>
+      {roughPaths.map((p, i) => (
+        <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
+      ))}
+      {lines.length > 0 && (
+        <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill="#1C1C1C" fontWeight={700} style={{ pointerEvents: "none", userSelect: "none" }}>
+          {lines.map((line, i) => (
+            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
+              {line}
+            </tspan>
+          ))}
+        </text>
+      )}
+    </g>
+  );
+}
+
+function SketchCircleStroke({ r }: { r: number }) {
+  const paths = useMemo(() => {
+    const drawable = generator.circle(CX, CY, r * 2, {
+      roughness: 1.8,
+      stroke: "#8B7355",
+      strokeWidth: 1.5,
+      fill: "none",
+    });
+    return generator.toPaths(drawable);
+  }, [r]);
+  return (
+    <>
+      {paths.map((p, i) => (
+        <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill="none" />
+      ))}
+    </>
+  );
+}
+
 // 도넛 아이콘: 두꺼운 테두리의 원
 function DonutIcon() {
   return (
@@ -260,6 +381,7 @@ export default function TimetableCanvas() {
   const [shape, setShape] = useState<Shape>("donut");
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
+  const [isSketch, setIsSketch] = useState(false);
 
   useEffect(() => {
     applyTheme(selectedTheme);
@@ -291,15 +413,25 @@ export default function TimetableCanvas() {
         <div className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
             {/* 배경 원 */}
-            <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
-            <HourTicks />
+            {isSketch ? (
+              <SketchBackground />
+            ) : (
+              <circle cx={CX} cy={CY} r={OUTER_R} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
+            )}
 
-            {blocks.map((block) => (
-              <BlockArc key={block.id} block={block} innerR={innerR} />
-            ))}
+            {isSketch ? <SketchHourTicks /> : <HourTicks />}
+
+            {blocks.map((block) =>
+              isSketch ? (
+                <SketchBlockArc key={block.id} block={block} innerR={innerR} />
+              ) : (
+                <BlockArc key={block.id} block={block} innerR={innerR} />
+              ),
+            )}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="white" />}
+            {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
             <HourLabels display={numberDisplay} blocks={blocks} />
           </svg>
@@ -324,6 +456,14 @@ export default function TimetableCanvas() {
             ]}
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
+          />
+          <ToggleGroup
+            options={[
+              { value: "normal", label: "기본" },
+              { value: "sketch", label: "스케치" },
+            ]}
+            value={isSketch ? "sketch" : "normal"}
+            onChange={(v) => setIsSketch(v === "sketch")}
           />
         </div>
       </div>
