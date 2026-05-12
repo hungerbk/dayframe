@@ -11,6 +11,7 @@ import type { Shape, NumberDisplay } from "./svgUtils";
 import { BlockArc, SketchBlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
+import DownloadButton from "@/components/ui/DownloadButton";
 
 // 도넛 아이콘: 두꺼운 테두리의 원
 function DonutIcon() {
@@ -36,7 +37,7 @@ export default function Timetable() {
   const [numberDisplay, setNumberDisplay] = useState<NumberDisplay>("major");
   const [selectedTheme, setSelectedTheme] = useState<Theme>(THEMES[0]);
   const [isSketch, setIsSketch] = useState(false);
-  const { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, download } = usePngDownload(selectedTheme.ui.page);
+  const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page);
 
   useEffect(() => {
     applyTheme(selectedTheme);
@@ -101,34 +102,7 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
-          <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setShowSizeMenu(false); }}>
-            <button
-              type="button"
-              onClick={() => !isDownloading && setShowSizeMenu((v) => !v)}
-              disabled={isDownloading}
-              aria-label="PNG 다운로드"
-              aria-expanded={showSizeMenu}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-text text-sm font-medium hover:bg-border/30 active:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              {isDownloading ? "저장 중" : "PNG"}
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden className={`transition-transform ${showSizeMenu ? "rotate-180" : ""}`}>
-                <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {showSizeMenu && (
-              <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-white border border-border rounded-lg shadow-md overflow-hidden z-10 min-w-30">
-                <button type="button" onClick={() => download("square")} className="w-full px-4 py-2 text-sm text-text text-left hover:bg-background transition-colors">
-                  정사각형
-                </button>
-                <button type="button" onClick={() => download("mobile")} className="w-full px-4 py-2 text-sm text-text text-left hover:bg-background transition-colors border-t border-border">
-                  모바일 (9:16)
-                </button>
-              </div>
-            )}
-          </div>
+          <DownloadButton isDownloading={isDownloading} onDownload={download} />
         </div>
       </div>
 

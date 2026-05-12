@@ -24,13 +24,11 @@ function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<st
 
 export function usePngDownload(bgColor: string) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const [showSizeMenu, setShowSizeMenu] = useState(false);
   const targetRef = useRef<HTMLDivElement>(null);
 
   async function download(size: DownloadSize) {
     if (!targetRef.current || isDownloading) return;
     setIsDownloading(true);
-    setShowSizeMenu(false);
     try {
       const date = new Date().toISOString().slice(0, 10);
       const squareDataUrl = await toPng(targetRef.current, {
@@ -50,5 +48,5 @@ export function usePngDownload(bgColor: string) {
     }
   }
 
-  return { isDownloading, showSizeMenu, setShowSizeMenu, targetRef, download };
+  return { isDownloading, targetRef, download };
 }
