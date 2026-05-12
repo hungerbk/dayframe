@@ -1,7 +1,7 @@
 import { useMemo, memo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { polar, CX, CY, OUTER_R, LABEL_R, TICK_OUTER, TICK_MINOR_INNER, TICK_MAJOR_INNER } from "./svgUtils";
+import { polar, CX, CY, OUTER_R, LABEL_R, TICK_OUTER, TICK_MINOR_INNER, TICK_MAJOR_INNER, COLOR_TICK_MINOR, COLOR_TICK_MAJOR, COLOR_LABEL_MAJOR, COLOR_LABEL_BLOCK } from "./svgUtils";
 import type { NumberDisplay } from "./svgUtils";
 
 const generator = rough.generator();
@@ -16,7 +16,7 @@ export function HourTicks() {
         const inner = isMajor ? TICK_MAJOR_INNER : TICK_MINOR_INNER;
         const p1 = polar(inner, angle);
         const p2 = polar(TICK_OUTER, angle);
-        return <line key={h} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={isMajor ? "#94a3b8" : "#cbd5e1"} strokeWidth={isMajor ? 1.5 : 1} />;
+        return <line key={h} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={isMajor ? COLOR_TICK_MAJOR : COLOR_TICK_MINOR} strokeWidth={isMajor ? 1.5 : 1} />;
       })}
     </>
   );
@@ -44,7 +44,7 @@ export function HourLabels({ display, blocks }: HourLabelsProps) {
     const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
     const { x, y } = polar(LABEL_R, angle);
     return (
-      <text key={`major-${hour}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="#64748b">
+      <text key={`major-${hour}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill={COLOR_LABEL_MAJOR}>
         {label}
       </text>
     );
@@ -64,7 +64,7 @@ export function HourLabels({ display, blocks }: HourLabelsProps) {
     // 정각(분=0)이면 시 숫자만, 아니면 H:MM 형식으로 표시한다
     const label = m === 0 ? String(h) : `${h}:${String(m).padStart(2, "0")}`;
     return (
-      <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill="#94a3b8">
+      <text key={`block-${time}`} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500} fill={COLOR_LABEL_BLOCK}>
         {label}
       </text>
     );
@@ -111,7 +111,7 @@ export const SketchHourTicks = memo(function SketchHourTicks() {
       const drawable = generator.line(p1.x, p1.y, p2.x, p2.y, {
         roughness: 1.0,
         seed: h + 1,
-        stroke: isMajor ? "#94a3b8" : "#cbd5e1",
+        stroke: isMajor ? COLOR_TICK_MAJOR : COLOR_TICK_MINOR,
         strokeWidth: isMajor ? 1.5 : 1,
       });
       return { tickPaths: generator.toPaths(drawable), h };
