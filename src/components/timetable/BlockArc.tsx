@@ -46,9 +46,17 @@ export function BlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) 
   const textBlockHalfHeight = ((titleLines.length - 1) * LINE_HEIGHT) / 2;
 
   return (
-    <g onClick={onClick} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} style={{ cursor: onClick ? "pointer" : undefined }}>
+    <g
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
       <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
-      {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} style={{ pointerEvents: "none" }} />}
+      {isSelected && (
+        <>
+          <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke="white" strokeWidth={2} style={{ pointerEvents: "none" }} />
+        </>
+      )}
       {titleLines.length > 0 && (
         <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill={COLOR_BLOCK_TEXT} fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
           {titleLines.map((line, i) => (
@@ -115,13 +123,21 @@ export function SketchBlockArc({ block, innerR, onClick, isSelected }: BlockArcP
   }, [block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
   return (
-    <g onClick={onClick} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} style={{ cursor: onClick ? "pointer" : undefined }}>
+    <g
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
       {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
       <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="transparent" stroke="none" />
       {roughPaths.map((p, i) => (
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
       ))}
-      {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} style={{ pointerEvents: "none" }} />}
+      {isSelected && (
+        <>
+          <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" strokeWidth={2} style={{ pointerEvents: "none" }} />
+        </>
+      )}
       {titleLines.length > 0 && (
         <text
           textAnchor="middle"
