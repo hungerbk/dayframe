@@ -145,7 +145,7 @@ export default function Timetable() {
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
           />
-          <DownloadButton isDownloading={isDownloading} onDownload={download} />
+          <DownloadButton isDownloading={isDownloading} onDownload={download} disabled={!!selectedBlockId} />
         </div>
       </div>
 
