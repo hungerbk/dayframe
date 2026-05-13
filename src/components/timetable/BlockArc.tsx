@@ -87,27 +87,19 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />
       )}
       {titleLines.length > 0 && (
-        sketch ? (
-          <text
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={FONT_SIZE}
-            fill={COLOR_SKETCH_BLOCK_TEXT}
-            fontWeight={700}
-            stroke={COLOR_BLOCK_TEXT}
-            strokeWidth={3}
-            style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
-            {titleLines.map((line, i) => (
-              <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>{line}</tspan>
-            ))}
-          </text>
-        ) : (
-          <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill={COLOR_BLOCK_TEXT} fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
-            {titleLines.map((line, i) => (
-              <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>{line}</tspan>
-            ))}
-          </text>
-        )
+        <text
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={FONT_SIZE}
+          fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
+          fontWeight={sketch ? 700 : 600}
+          stroke={sketch ? COLOR_BLOCK_TEXT : undefined}
+          strokeWidth={sketch ? 3 : undefined}
+          style={{ pointerEvents: "none", userSelect: "none", paintOrder: sketch ? "stroke fill" : undefined }}>
+          {titleLines.map((line, i) => (
+            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>{line}</tspan>
+          ))}
+        </text>
       )}
     </g>
   );
