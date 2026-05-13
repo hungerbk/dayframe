@@ -8,12 +8,14 @@ interface Props {
   onAdd: (block: Omit<TimeBlock, "color">) => void;
   editingBlock?: TimeBlock;
   onUpdate?: (block: TimeBlock) => void;
+  blockColors?: string[];
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, blockColors }: Props) {
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
+  const [color, setColor] = useState(editingBlock?.color ?? "");
   const [error, setError] = useState("");
 
   const isEditMode = editingBlock !== undefined;
@@ -39,7 +41,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate }: Props)
     }
 
     if (isEditMode && editingBlock && onUpdate) {
-      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined });
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color });
     } else {
       onAdd({
         id: crypto.randomUUID(),
@@ -57,6 +59,24 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate }: Props)
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background">
+      {isEditMode && blockColors && blockColors.length > 0 && (
+        <div className="flex-1 flex justify-end gap-3">
+          {blockColors.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setColor(c)}
+              className="w-7 h-7 rounded-full transition-transform hover:scale-110"
+              style={{
+                backgroundColor: c,
+                outline: c === color ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
+                outlineOffset: "2px",
+              }}
+              aria-label={c}
+            />
+          ))}
+        </div>
+      )}
       <div className="flex gap-3">
         <Input
           label="시작 시간"
