@@ -162,15 +162,17 @@ export default function Timetable() {
           onDraftChange={handleDraftChange}
           blockColors={selectedTheme.blockColors}
         />
-        <Button variant="outline" onClick={blockReset} className="w-full">
-          내용 초기화
-        </Button>
-        <Button variant="danger" onClick={fullReset} className="w-full">
-          전체 초기화
-        </Button>
-        <p className="text-xs text-center text-text/50">
-          이 서비스는 데이터를 서버에 저장하지 않고 사용자의 브라우저에만 보관합니다. 소중한 개인정보 보호를 위해 완료된 일정은 주기적으로 삭제하는 것을 권장합니다.
-        </p>
+        <div className="flex flex-col gap-4 mt-4">
+          <Button variant="outline" onClick={blockReset} className="w-full">
+            내용 초기화
+          </Button>
+          <Button variant="danger" onClick={fullReset} className="w-full">
+            전체 초기화
+          </Button>
+          <p className="text-xs text-center text-text/50">
+            이 서비스는 데이터를 서버에 저장하지 않고 사용자의 브라우저에만 보관합니다. 소중한 개인정보 보호를 위해 완료된 일정은 주기적으로 삭제하는 것을 권장합니다.
+          </p>
+        </div>
       </div>
     </div>
   );
