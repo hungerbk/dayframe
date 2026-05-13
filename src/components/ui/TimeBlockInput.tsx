@@ -8,10 +8,11 @@ interface Props {
   onAdd: (block: Omit<TimeBlock, "color">) => void;
   editingBlock?: TimeBlock;
   onUpdate?: (block: TimeBlock) => void;
+  onDelete?: () => void;
   blockColors?: string[];
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, blockColors }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, blockColors }: Props) {
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
@@ -119,6 +120,11 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, blockCol
       <Button type="submit" className="mt-1">
         {isEditMode ? "수정" : "추가"}
       </Button>
+      {isEditMode && onDelete && (
+        <Button type="button" variant="danger" onClick={onDelete} className="w-full">
+          삭제
+        </Button>
+      )}
     </form>
   );
 }

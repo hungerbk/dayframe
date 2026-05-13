@@ -68,6 +68,12 @@ export default function Timetable() {
     setSelectedBlockId(null);
   }
 
+  function handleDelete() {
+    if (!selectedBlockId) return;
+    setBlocks((prev) => prev.filter((b) => b.id !== selectedBlockId));
+    setSelectedBlockId(null);
+  }
+
   const editingBlock = blocks.find((b) => b.id === selectedBlockId);
 
   return (
@@ -123,7 +129,7 @@ export default function Timetable() {
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
-        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} blockColors={selectedTheme.blockColors} />
+        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} onDelete={handleDelete} blockColors={selectedTheme.blockColors} />
         <Button variant="outline" onClick={blockReset} className="w-full">
           내용 초기화
         </Button>
