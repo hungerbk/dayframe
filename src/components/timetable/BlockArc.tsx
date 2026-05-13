@@ -116,6 +116,8 @@ export function SketchBlockArc({ block, innerR, onClick, isSelected }: BlockArcP
 
   return (
     <g onClick={onClick} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} style={{ cursor: onClick ? "pointer" : undefined }}>
+      {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
+      <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="transparent" stroke="none" />
       {roughPaths.map((p, i) => (
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
       ))}
