@@ -49,6 +49,12 @@ export default function Timetable() {
         color: theme.blockColors[i % theme.blockColors.length],
       })),
     );
+    if (editingDraft) {
+      const idx = blocks.findIndex((b) => b.id === editingDraft.id);
+      if (idx !== -1) {
+        setEditingDraft({ ...editingDraft, color: theme.blockColors[idx % theme.blockColors.length] });
+      }
+    }
   }
 
   // 선택된 모양에 따라 실제 렌더링에 쓸 innerR을 결정한다
@@ -147,7 +153,7 @@ export default function Timetable() {
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput
-          key={selectedBlockId ?? "new"}
+          key={selectedBlockId ? `${selectedBlockId}-${selectedTheme.id}` : "new"}
           onAdd={handleAdd}
           editingBlock={editingBlock}
           onUpdate={handleUpdate}
