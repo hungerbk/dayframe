@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
 import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
@@ -8,9 +8,13 @@ const generator = rough.generator();
 interface BlockArcProps {
   block: TimeBlock;
   innerR: number;
+  onClick?: () => void;
+  isSelected?: boolean;
 }
 
-export function BlockArc({ block, innerR }: BlockArcProps) {
+export function BlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
   // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
@@ -19,7 +23,11 @@ export function BlockArc({ block, innerR }: BlockArcProps) {
 
   const arcAngle = endAngle - startAngle;
   const midAngle = startAngle + arcAngle / 2;
-  // 텍스트 위치는 innerR에 따라 동적으로 계산한다 (원형 모드에서는 중심쪽으로 이동)
+
+  // 선택/호버 시 outer radius를 키워 블록이 원 밖으로 돌출되게 한다
+  const effectiveOuterR = isSelected || isHovered ? OUTER_R + 12 : OUTER_R;
+
+  // 텍스트 위치는 원래 반지름 기준으로 유지해 호버 시 텍스트가 튀지 않게 한다
   const midTextR = (OUTER_R + innerR) / 2;
   const { x: tx, y: ty } = polar(midTextR, midAngle);
 
@@ -38,8 +46,9 @@ export function BlockArc({ block, innerR }: BlockArcProps) {
   const textBlockHalfHeight = ((titleLines.length - 1) * LINE_HEIGHT) / 2;
 
   return (
-    <g>
-      <path d={sectorPath(innerR, OUTER_R, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
+    <g onClick={onClick} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} style={{ cursor: onClick ? "pointer" : undefined }}>
+      <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
+      {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (
         <text textAnchor="middle" dominantBaseline="central" fontSize={FONT_SIZE} fill={COLOR_BLOCK_TEXT} fontWeight={600} style={{ pointerEvents: "none", userSelect: "none" }}>
           {titleLines.map((line, i) => (
@@ -53,7 +62,9 @@ export function BlockArc({ block, innerR }: BlockArcProps) {
   );
 }
 
-export function SketchBlockArc({ block, innerR }: BlockArcProps) {
+export function SketchBlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
   // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
@@ -62,7 +73,11 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
 
   const arcAngle = endAngle - startAngle;
   const midAngle = startAngle + arcAngle / 2;
-  // 텍스트 위치는 innerR에 따라 동적으로 계산한다 (원형 모드에서는 중심쪽으로 이동)
+
+  // 선택/호버 시 outer radius를 키워 블록이 원 밖으로 돌출되게 한다
+  const effectiveOuterR = isSelected || isHovered ? OUTER_R + 12 : OUTER_R;
+
+  // 텍스트 위치는 원래 반지름 기준으로 유지해 호버 시 텍스트가 튀지 않게 한다
   const midTextR = (OUTER_R + innerR) / 2;
   const { x: tx, y: ty } = polar(midTextR, midAngle);
 
@@ -81,8 +96,9 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
   const textBlockHalfHeight = ((titleLines.length - 1) * LINE_HEIGHT) / 2;
 
   // rough.js path를 useMemo로 캐싱해 re-render 시 스케치 선이 흔들리지 않게 한다
+  // seed가 고정(1)이므로 effectiveOuterR이 바뀌어도 같은 seed로 재생성되어 흔들리지 않는다
   const roughPaths = useMemo(() => {
-    const pathData = sectorPath(innerR, OUTER_R, startAngle, endAngle);
+    const pathData = sectorPath(innerR, effectiveOuterR, startAngle, endAngle);
     const drawable = generator.path(pathData, {
       roughness: 1.5,
       seed: 1,
@@ -96,13 +112,14 @@ export function SketchBlockArc({ block, innerR }: BlockArcProps) {
       fillWeight: 1.2,
     });
     return generator.toPaths(drawable);
-  }, [block.color, innerR, startAngle, endAngle]);
+  }, [block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
   return (
-    <g>
+    <g onClick={onClick} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} style={{ cursor: onClick ? "pointer" : undefined }}>
       {roughPaths.map((p, i) => (
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? "none"} />
       ))}
+      {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (
         <text
           textAnchor="middle"

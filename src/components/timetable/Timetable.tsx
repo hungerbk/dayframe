@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import type { Theme } from "@/constants/palettes";
@@ -34,6 +34,7 @@ function CircleIcon() {
 export default function Timetable() {
   const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     applyTheme(selectedTheme);
@@ -58,6 +59,17 @@ export default function Timetable() {
     setBlocks((prev) => [...prev, { ...block, color }]);
   }
 
+  function handleBlockClick(id: string) {
+    setSelectedBlockId((prev) => (prev === id ? null : id));
+  }
+
+  function handleUpdate(block: TimeBlock) {
+    setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
+    setSelectedBlockId(null);
+  }
+
+  const editingBlock = blocks.find((b) => b.id === selectedBlockId);
+
   return (
     <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
@@ -68,7 +80,13 @@ export default function Timetable() {
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
-            {blocks.map((block) => (isSketch ? <SketchBlockArc key={block.id} block={block} innerR={innerR} /> : <BlockArc key={block.id} block={block} innerR={innerR} />))}
+            {blocks.map((block) =>
+              isSketch ? (
+                <SketchBlockArc key={block.id} block={block} innerR={innerR} onClick={() => handleBlockClick(block.id)} isSelected={block.id === selectedBlockId} />
+              ) : (
+                <BlockArc key={block.id} block={block} innerR={innerR} onClick={() => handleBlockClick(block.id)} isSelected={block.id === selectedBlockId} />
+              ),
+            )}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
@@ -105,7 +123,7 @@ export default function Timetable() {
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
-        <TimeBlockInput onAdd={handleAdd} />
+        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} />
         <Button variant="outline" onClick={blockReset} className="w-full">
           내용 초기화
         </Button>

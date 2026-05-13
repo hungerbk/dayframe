@@ -6,15 +6,19 @@ import Button from "./Button";
 
 interface Props {
   onAdd: (block: Omit<TimeBlock, "color">) => void;
+  editingBlock?: TimeBlock;
+  onUpdate?: (block: TimeBlock) => void;
 }
 
-export default function TimeBlockInput({ onAdd }: Props) {
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [title, setTitle] = useState("");
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate }: Props) {
+  const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
+  const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
+  const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  const isEditMode = editingBlock !== undefined;
+
+  function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
 
     if (!startTime || !endTime) {
@@ -34,17 +38,21 @@ export default function TimeBlockInput({ onAdd }: Props) {
       return;
     }
 
-    onAdd({
-      id: crypto.randomUUID(),
-      startTime,
-      endTime,
-      title: title.trim() || undefined,
-    });
+    if (isEditMode && editingBlock && onUpdate) {
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined });
+    } else {
+      onAdd({
+        id: crypto.randomUUID(),
+        startTime,
+        endTime,
+        title: title.trim() || undefined,
+      });
 
-    setStartTime("");
-    setEndTime("");
-    setTitle("");
-    setError("");
+      setStartTime("");
+      setEndTime("");
+      setTitle("");
+      setError("");
+    }
   }
 
   return (
@@ -89,7 +97,7 @@ export default function TimeBlockInput({ onAdd }: Props) {
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <Button type="submit" className="mt-1">
-        추가
+        {isEditMode ? "수정" : "추가"}
       </Button>
     </form>
   );
