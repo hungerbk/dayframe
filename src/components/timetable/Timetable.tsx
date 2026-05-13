@@ -81,15 +81,13 @@ export default function Timetable() {
 
   function handleUpdate(block: TimeBlock) {
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
-    setSelectedBlockId(null);
-    setEditingDraft(null);
+    handleCancelEdit();
   }
 
   function handleDelete() {
     if (!selectedBlockId) return;
     setBlocks((prev) => prev.filter((b) => b.id !== selectedBlockId));
-    setSelectedBlockId(null);
-    setEditingDraft(null);
+    handleCancelEdit();
   }
 
   const editingBlock = blocks.find((b) => b.id === selectedBlockId);
@@ -148,7 +146,16 @@ export default function Timetable() {
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
-        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} onDelete={handleDelete} onCancelEdit={handleCancelEdit} onDraftChange={handleDraftChange} blockColors={selectedTheme.blockColors} />
+        <TimeBlockInput
+          key={selectedBlockId ?? "new"}
+          onAdd={handleAdd}
+          editingBlock={editingBlock}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+          onCancelEdit={handleCancelEdit}
+          onDraftChange={handleDraftChange}
+          blockColors={selectedTheme.blockColors}
+        />
         <Button variant="outline" onClick={blockReset} className="w-full">
           내용 초기화
         </Button>
