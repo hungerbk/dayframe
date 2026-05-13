@@ -7,7 +7,7 @@ import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
 import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
-import { BlockArc, SketchBlockArc } from "./BlockArc";
+import { BlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
 import DownloadButton from "@/components/ui/DownloadButton";
@@ -117,13 +117,9 @@ export default function Timetable() {
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
-            {otherBlocks.map((block) =>
-              isSketch ? (
-                <SketchBlockArc key={block.id} block={block} innerR={innerR} onClick={() => handleBlockClick(block.id)} isSelected={false} isHovered={false} onMouseEnter={() => setHoveredBlockId(block.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              ) : (
-                <BlockArc key={block.id} block={block} innerR={innerR} onClick={() => handleBlockClick(block.id)} isSelected={false} isHovered={false} onMouseEnter={() => setHoveredBlockId(block.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              ),
-            )}
+            {otherBlocks.map((block) => (
+              <BlockArc key={block.id} block={block} innerR={innerR} sketch={isSketch} onClick={() => handleBlockClick(block.id)} isSelected={false} isHovered={false} onMouseEnter={() => setHoveredBlockId(block.id)} onMouseLeave={() => setHoveredBlockId(null)} />
+            ))}
 
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
@@ -131,18 +127,10 @@ export default function Timetable() {
 
             {/* 호버/선택된 블록은 흰 원 위에 렌더링해 안쪽으로도 확장되게 한다 */}
             {hoveredBlock && (
-              isSketch ? (
-                <SketchBlockArc key={hoveredBlock.id} block={hoveredBlock} innerR={Math.max(0, innerR - 12)} onClick={() => handleBlockClick(hoveredBlock.id)} isSelected={false} isHovered={true} onMouseEnter={() => setHoveredBlockId(hoveredBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              ) : (
-                <BlockArc key={hoveredBlock.id} block={hoveredBlock} innerR={Math.max(0, innerR - 12)} onClick={() => handleBlockClick(hoveredBlock.id)} isSelected={false} isHovered={true} onMouseEnter={() => setHoveredBlockId(hoveredBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              )
+              <BlockArc key={hoveredBlock.id} block={hoveredBlock} innerR={Math.max(0, innerR - 12)} sketch={isSketch} onClick={() => handleBlockClick(hoveredBlock.id)} isSelected={false} isHovered={true} onMouseEnter={() => setHoveredBlockId(hoveredBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
             )}
             {selectedBlock && (
-              isSketch ? (
-                <SketchBlockArc key={selectedBlock.id} block={selectedBlock} innerR={Math.max(0, innerR - 12)} onClick={() => handleBlockClick(selectedBlock.id)} isSelected={true} isHovered={selectedBlock.id === hoveredBlockId} onMouseEnter={() => setHoveredBlockId(selectedBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              ) : (
-                <BlockArc key={selectedBlock.id} block={selectedBlock} innerR={Math.max(0, innerR - 12)} onClick={() => handleBlockClick(selectedBlock.id)} isSelected={true} isHovered={selectedBlock.id === hoveredBlockId} onMouseEnter={() => setHoveredBlockId(selectedBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
-              )
+              <BlockArc key={selectedBlock.id} block={selectedBlock} innerR={Math.max(0, innerR - 12)} sketch={isSketch} onClick={() => handleBlockClick(selectedBlock.id)} isSelected={true} isHovered={selectedBlock.id === hoveredBlockId} onMouseEnter={() => setHoveredBlockId(selectedBlock.id)} onMouseLeave={() => setHoveredBlockId(null)} />
             )}
 
             <HourLabels display={numberDisplay} blocks={blocksToRender} isSketch={isSketch} />
