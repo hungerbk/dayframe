@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
 import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
@@ -10,10 +10,12 @@ interface BlockArcProps {
   innerR: number;
   onClick?: () => void;
   isSelected?: boolean;
+  isHovered?: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-export function BlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) {
-  const [isHovered, setIsHovered] = useState(false);
+export function BlockArc({ block, innerR, onClick, isSelected, isHovered = false, onMouseEnter, onMouseLeave }: BlockArcProps) {
 
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
@@ -48,8 +50,8 @@ export function BlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) 
   return (
     <g
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
       <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
       {isSelected && (
@@ -70,8 +72,7 @@ export function BlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) 
   );
 }
 
-export function SketchBlockArc({ block, innerR, onClick, isSelected }: BlockArcProps) {
-  const [isHovered, setIsHovered] = useState(false);
+export function SketchBlockArc({ block, innerR, onClick, isSelected, isHovered = false, onMouseEnter, onMouseLeave }: BlockArcProps) {
 
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
@@ -125,8 +126,8 @@ export function SketchBlockArc({ block, innerR, onClick, isSelected }: BlockArcP
   return (
     <g
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
       {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
       <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="transparent" stroke="none" />
