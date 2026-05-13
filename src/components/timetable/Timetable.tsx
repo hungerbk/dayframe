@@ -35,6 +35,7 @@ export default function Timetable() {
   const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [editingDraft, setEditingDraft] = useState<TimeBlock | null>(null);
 
   useLayoutEffect(() => {
     applyTheme(selectedTheme);
@@ -60,21 +61,39 @@ export default function Timetable() {
   }
 
   function handleBlockClick(id: string) {
-    setSelectedBlockId((prev) => (prev === id ? null : id));
+    if (selectedBlockId === id) {
+      setSelectedBlockId(null);
+      setEditingDraft(null);
+    } else {
+      setSelectedBlockId(id);
+      setEditingDraft(blocks.find((b) => b.id === id) ?? null);
+    }
+  }
+
+  function handleDraftChange(draft: TimeBlock) {
+    setEditingDraft(draft);
+  }
+
+  function handleCancelEdit() {
+    setSelectedBlockId(null);
+    setEditingDraft(null);
   }
 
   function handleUpdate(block: TimeBlock) {
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
     setSelectedBlockId(null);
+    setEditingDraft(null);
   }
 
   function handleDelete() {
     if (!selectedBlockId) return;
     setBlocks((prev) => prev.filter((b) => b.id !== selectedBlockId));
     setSelectedBlockId(null);
+    setEditingDraft(null);
   }
 
   const editingBlock = blocks.find((b) => b.id === selectedBlockId);
+  const blocksToRender = editingDraft ? blocks.map((b) => (b.id === editingDraft.id ? editingDraft : b)) : blocks;
 
   return (
     <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
@@ -86,7 +105,7 @@ export default function Timetable() {
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
-            {blocks.map((block) =>
+            {blocksToRender.map((block) =>
               isSketch ? (
                 <SketchBlockArc key={block.id} block={block} innerR={innerR} onClick={() => handleBlockClick(block.id)} isSelected={block.id === selectedBlockId} />
               ) : (
@@ -98,7 +117,7 @@ export default function Timetable() {
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
 
-            <HourLabels display={numberDisplay} blocks={blocks} isSketch={isSketch} />
+            <HourLabels display={numberDisplay} blocks={blocksToRender} isSketch={isSketch} />
           </svg>
         </div>
 
@@ -129,7 +148,7 @@ export default function Timetable() {
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
       <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
-        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} onDelete={handleDelete} blockColors={selectedTheme.blockColors} />
+        <TimeBlockInput key={selectedBlockId ?? "new"} onAdd={handleAdd} editingBlock={editingBlock} onUpdate={handleUpdate} onDelete={handleDelete} onCancelEdit={handleCancelEdit} onDraftChange={handleDraftChange} blockColors={selectedTheme.blockColors} />
         <Button variant="outline" onClick={blockReset} className="w-full">
           내용 초기화
         </Button>

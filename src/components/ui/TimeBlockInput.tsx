@@ -9,10 +9,12 @@ interface Props {
   editingBlock?: TimeBlock;
   onUpdate?: (block: TimeBlock) => void;
   onDelete?: () => void;
+  onCancelEdit?: () => void;
+  onDraftChange?: (draft: TimeBlock) => void;
   blockColors?: string[];
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, blockColors }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors }: Props) {
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
@@ -20,6 +22,19 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [error, setError] = useState("");
 
   const isEditMode = editingBlock !== undefined;
+
+  // 시간이 유효할 때만 draft 변경을 부모에 알린다. 타이핑 중간에 잘못된 값이 전달되지 않게 한다.
+  function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string; color?: string }) {
+    if (!editingBlock || !onDraftChange) return;
+    const next = {
+      startTime: overrides.startTime ?? startTime,
+      endTime: overrides.endTime ?? endTime,
+      title: overrides.title ?? title,
+      color: overrides.color ?? color,
+    };
+    if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
+    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined });
+  }
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -66,7 +81,10 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
             <button
               key={c}
               type="button"
-              onClick={() => setColor(c)}
+              onClick={() => {
+                setColor(c);
+                notifyDraftChange({ color: c });
+              }}
               className="w-7 h-7 rounded-full transition-transform hover:scale-110"
               style={{
                 backgroundColor: c,
@@ -86,8 +104,10 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           placeholder="00:00"
           value={startTime}
           onChange={(e) => {
-            setStartTime(formatTimeInput(e.target.value));
+            const val = formatTimeInput(e.target.value);
+            setStartTime(val);
             setError("");
+            notifyDraftChange({ startTime: val });
           }}
         />
         <Input
@@ -97,8 +117,10 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           placeholder="00:00"
           value={endTime}
           onChange={(e) => {
-            setEndTime(formatTimeInput(e.target.value));
+            const val = formatTimeInput(e.target.value);
+            setEndTime(val);
             setError("");
+            notifyDraftChange({ endTime: val });
           }}
         />
       </div>
@@ -112,6 +134,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
         onChange={(e) => {
           setTitle(e.target.value);
           setError("");
+          notifyDraftChange({ title: e.target.value });
         }}
       />
 
@@ -120,10 +143,19 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       <Button type="submit" className="mt-1">
         {isEditMode ? "수정" : "추가"}
       </Button>
-      {isEditMode && onDelete && (
-        <Button type="button" variant="danger" onClick={onDelete} className="w-full">
-          삭제
-        </Button>
+      {isEditMode && (
+        <div className="flex gap-2">
+          {onCancelEdit && (
+            <Button type="button" variant="outline" onClick={onCancelEdit} className="flex-1">
+              취소
+            </Button>
+          )}
+          {onDelete && (
+            <Button type="button" variant="danger" onClick={onDelete} className="flex-1">
+              삭제
+            </Button>
+          )}
+        </div>
       )}
     </form>
   );
