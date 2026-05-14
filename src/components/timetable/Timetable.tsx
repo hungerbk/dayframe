@@ -33,7 +33,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -186,15 +186,6 @@ export default function Timetable() {
           <p className="text-xs text-center text-text/50">
             {t("privacy")}
           </p>
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => i18n.changeLanguage(i18n.language === "ko" ? "en" : "ko")}
-              className="text-xs text-text/40 hover:text-text/70 transition-colors px-2 py-1 rounded"
-            >
-              {i18n.language === "ko" ? "EN" : "KO"}
-            </button>
-          </div>
         </div>
       </div>
     </div>
