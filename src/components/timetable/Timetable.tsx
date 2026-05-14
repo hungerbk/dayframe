@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { pickRandomColor, applyTheme } from "@/utils";
 import type { Theme } from "@/constants/palettes";
@@ -32,6 +33,7 @@ function CircleIcon() {
 }
 
 export default function Timetable() {
+  const { t, i18n } = useTranslation();
   const { blocks, setBlocks, shape, setShape, isSketch, setIsSketch, selectedTheme, setSelectedTheme, numberDisplay, setNumberDisplay, blockReset, fullReset } = useTimetableStorage();
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -141,18 +143,18 @@ export default function Timetable() {
         <div className="flex gap-3 flex-wrap justify-center">
           <ToggleGroup
             options={[
-              { value: "donut", label: <DonutIcon />, ariaLabel: "도넛 모양" },
-              { value: "circle", label: <CircleIcon />, ariaLabel: "원형 모양" },
+              { value: "donut", label: <DonutIcon />, ariaLabel: t("controls.shapeDonut") },
+              { value: "circle", label: <CircleIcon />, ariaLabel: t("controls.shapeCircle") },
             ]}
             value={shape}
             onChange={(v) => setShape(v)}
           />
           <ToggleGroup
             options={[
-              { value: "all", label: "전체" },
-              { value: "block", label: "내 일정" },
-              { value: "major", label: "주요 시각" },
-              { value: "none", label: "없음" },
+              { value: "all", label: t("controls.displayAll") },
+              { value: "block", label: t("controls.displayBlock") },
+              { value: "major", label: t("controls.displayMajor") },
+              { value: "none", label: t("controls.displayNone") },
             ]}
             value={numberDisplay}
             onChange={(v) => setNumberDisplay(v)}
@@ -176,14 +178,23 @@ export default function Timetable() {
         />
         <div className="flex flex-col gap-4 mt-4">
           <Button variant="outline" onClick={blockReset} className="w-full">
-            내용 초기화
+            {t("controls.blockReset")}
           </Button>
           <Button variant="danger" onClick={fullReset} className="w-full">
-            전체 초기화
+            {t("controls.fullReset")}
           </Button>
           <p className="text-xs text-center text-text/50">
-            이 서비스는 데이터를 서버에 저장하지 않고 사용자의 브라우저에만 보관합니다. 소중한 개인정보 보호를 위해 완료된 일정은 주기적으로 삭제하는 것을 권장합니다.
+            {t("privacy")}
           </p>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => i18n.changeLanguage(i18n.language === "ko" ? "en" : "ko")}
+              className="text-xs text-text/40 hover:text-text/70 transition-colors px-2 py-1 rounded"
+            >
+              {i18n.language === "ko" ? "EN" : "KO"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

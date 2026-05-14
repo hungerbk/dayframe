@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { isValidTime, isEndAfterStart, formatTimeInput } from "@/utils";
 import Input from "./Input";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors }: Props) {
+  const { t } = useTranslation();
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
@@ -40,19 +42,19 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     e.preventDefault();
 
     if (!startTime || !endTime) {
-      setError("시작 시간과 종료 시간을 모두 입력해주세요.");
+      setError(t("input.errorBothRequired"));
       return;
     }
     if (!isValidTime(startTime)) {
-      setError("시작 시간이 올바르지 않습니다. (00:00~24:00 사이로 입력해주세요.)");
+      setError(t("input.errorInvalidStart"));
       return;
     }
     if (!isValidTime(endTime)) {
-      setError("종료 시간이 올바르지 않습니다. (00:00~24:00 사이로 입력해주세요.)");
+      setError(t("input.errorInvalidEnd"));
       return;
     }
     if (!isEndAfterStart(startTime, endTime)) {
-      setError("시작 시간과 종료 시간은 같을 수 없습니다.");
+      setError(t("input.errorSameTime"));
       return;
     }
 
@@ -98,7 +100,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       )}
       <div className="flex gap-3">
         <Input
-          label="시작 시간"
+          label={t("input.startTime")}
           className="flex-1"
           type="text"
           placeholder="00:00"
@@ -111,7 +113,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           }}
         />
         <Input
-          label="종료 시간"
+          label={t("input.endTime")}
           className="flex-1"
           type="text"
           placeholder="00:00"
@@ -126,9 +128,9 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       </div>
 
       <Input
-        label="제목 (선택)"
+        label={t("input.titleLabel")}
         type="text"
-        placeholder="예: 점심시간"
+        placeholder={t("input.titlePlaceholder")}
         value={title}
         maxLength={50}
         onChange={(e) => {
@@ -141,18 +143,18 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <Button type="submit" className="mt-1">
-        {isEditMode ? "수정" : "추가"}
+        {isEditMode ? t("input.update") : t("input.add")}
       </Button>
       {isEditMode && (
         <div className="flex gap-2">
           {onCancelEdit && (
             <Button type="button" variant="outline" onClick={onCancelEdit} className="flex-1">
-              취소
+              {t("input.cancel")}
             </Button>
           )}
           {onDelete && (
             <Button type="button" variant="danger" onClick={onDelete} className="flex-1">
-              삭제
+              {t("input.delete")}
             </Button>
           )}
         </div>

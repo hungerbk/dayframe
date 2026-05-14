@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { DownloadSize } from "@/hooks/usePngDownload";
 
 function MenuItem({ onClick, border, children }: { onClick: () => void; border?: "top" | "bottom"; children: React.ReactNode }) {
@@ -10,11 +11,6 @@ function MenuItem({ onClick, border, children }: { onClick: () => void; border?:
   );
 }
 
-const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
-  { value: "square", label: "정사각형" },
-  { value: "mobile", label: "모바일 (9:16)" },
-];
-
 interface Props {
   isDownloading: boolean;
   onDownload: (size: DownloadSize, removeBackground: boolean) => void;
@@ -22,8 +18,14 @@ interface Props {
 }
 
 export default function DownloadButton({ isDownloading, onDownload, disabled }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [removeBackground, setRemoveBackground] = useState(false);
+
+  const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
+    { value: "square", label: t("download.square") },
+    { value: "mobile", label: t("download.mobile") },
+  ];
 
   function handleSelect(size: DownloadSize) {
     setOpen(false);
@@ -40,7 +42,7 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={isDownloading || disabled}
-        aria-label="PNG 다운로드"
+        aria-label={t("download.ariaLabel")}
         aria-expanded={open}
         className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border bg-background text-text text-sm font-medium transition-colors disabled:opacity-50 ${isDownloading || disabled ? "pointer-events-none" : "hover:bg-border/30 active:opacity-80"}`}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -55,8 +57,8 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
       {open && (
         <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-white border border-border rounded-lg shadow-md overflow-hidden z-10 min-w-30">
           <MenuItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
-            <span className={removeBackground ? "text-text" : "text-text/50"}>배경 제거</span>
-            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? "켜짐" : "꺼짐"}</span>
+            <span className={removeBackground ? "text-text" : "text-text/50"}>{t("download.removeBackground")}</span>
+            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? t("download.on") : t("download.off")}</span>
           </MenuItem>
           {SIZE_OPTIONS.map((option, i) => (
             <MenuItem key={option.value} onClick={() => handleSelect(option.value)} border={i > 0 ? "top" : undefined}>
