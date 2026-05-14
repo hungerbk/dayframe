@@ -1,15 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { DownloadSize } from "@/hooks/usePngDownload";
-
-function MenuItem({ onClick, border, children }: { onClick: () => void; border?: "top" | "bottom"; children: React.ReactNode }) {
-  const borderClass = border === "bottom" ? "border-b border-border" : border === "top" ? "border-t border-border" : "";
-  return (
-    <button type="button" onClick={onClick} className={`w-full px-4 py-2 text-sm text-text text-left flex items-center justify-between hover:bg-background transition-colors ${borderClass}`}>
-      {children}
-    </button>
-  );
-}
+import { useDropdown } from "@/hooks/useDropdown";
+import { DropdownPanel, DropdownItem } from "./Dropdown";
 
 interface Props {
   isDownloading: boolean;
@@ -19,7 +12,7 @@ interface Props {
 
 export default function DownloadButton({ isDownloading, onDownload, disabled }: Props) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const { open, toggle, close, anchorProps } = useDropdown();
   const [removeBackground, setRemoveBackground] = useState(false);
 
   const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
@@ -28,19 +21,17 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
   ];
 
   function handleSelect(size: DownloadSize) {
-    setOpen(false);
+    close();
     onDownload(size, removeBackground);
   }
 
   return (
     <div
       className={`relative ${isDownloading || disabled ? "cursor-not-allowed" : ""}`}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
-      }}>
+      {...anchorProps}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         disabled={isDownloading || disabled}
         aria-label={t("download.ariaLabel")}
         aria-expanded={open}
@@ -55,17 +46,19 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         </svg>
       </button>
       {open && (
-        <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-white border border-border rounded-lg shadow-md overflow-hidden z-10 min-w-30">
-          <MenuItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
+        <DropdownPanel side="top" align="center">
+          <DropdownItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
             <span className={removeBackground ? "text-text" : "text-text/50"}>{t("download.removeBackground")}</span>
-            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? t("download.on") : t("download.off")}</span>
-          </MenuItem>
+            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>
+              {removeBackground ? t("download.on") : t("download.off")}
+            </span>
+          </DropdownItem>
           {SIZE_OPTIONS.map((option, i) => (
-            <MenuItem key={option.value} onClick={() => handleSelect(option.value)} border={i > 0 ? "top" : undefined}>
+            <DropdownItem key={option.value} onClick={() => handleSelect(option.value)} border={i > 0 ? "top" : undefined}>
               {option.label}
-            </MenuItem>
+            </DropdownItem>
           ))}
-        </div>
+        </DropdownPanel>
       )}
     </div>
   );
