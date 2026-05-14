@@ -37,6 +37,11 @@ export default function LanguageSelector() {
           {LANGUAGES.map((lang) => (
             <DropdownItem key={lang.code} onClick={() => handleSelect(lang.code)} active={lang.code === currentLang.code}>
               {lang.label}
+              {lang.code === currentLang.code && (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
             </DropdownItem>
           ))}
         </DropdownPanel>
