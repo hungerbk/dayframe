@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function DownloadButton({ isDownloading, onDownload, disabled }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { open, toggle, close, anchorProps } = useDropdown();
   const [removeBackground, setRemoveBackground] = useState(false);
 
@@ -26,9 +26,7 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
   }
 
   return (
-    <div
-      className={`relative ${isDownloading || disabled ? "cursor-not-allowed" : ""}`}
-      {...anchorProps}>
+    <div className={`relative ${isDownloading || disabled ? "cursor-not-allowed" : ""}`} {...anchorProps}>
       <button
         type="button"
         onClick={toggle}
@@ -46,12 +44,10 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         </svg>
       </button>
       {open && (
-        <DropdownPanel side="top" align="center">
+        <DropdownPanel side="top" align="center" className={i18n.language.startsWith("en") ? "min-w-38" : "min-w-30"}>
           <DropdownItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
             <span className={removeBackground ? "text-text" : "text-text/50"}>{t("download.removeBackground")}</span>
-            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>
-              {removeBackground ? t("download.on") : t("download.off")}
-            </span>
+            <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? t("download.on") : t("download.off")}</span>
           </DropdownItem>
           {SIZE_OPTIONS.map((option, i) => (
             <DropdownItem key={option.value} onClick={() => handleSelect(option.value)} border={i > 0 ? "top" : undefined}>

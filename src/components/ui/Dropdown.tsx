@@ -3,13 +3,15 @@ interface DropdownPanelProps {
   side?: "top" | "bottom";
   /** 드롭다운 패널의 수평 정렬. "left": 트리거 왼쪽 끝 기준, "center": 트리거 중앙 기준, "right": 트리거 오른쪽 끝 기준 */
   align?: "left" | "center" | "right";
+  /** 너비 등 추가 Tailwind 클래스 */
+  className?: string;
   children: React.ReactNode;
 }
 
-export function DropdownPanel({ side = "bottom", align = "left", children }: DropdownPanelProps) {
+export function DropdownPanel({ side = "bottom", align = "left", className, children }: DropdownPanelProps) {
   const sideClass = side === "top" ? "bottom-full mb-1.5" : "top-full mt-1";
   const alignClass = align === "center" ? "left-1/2 -translate-x-1/2" : align === "right" ? "right-0" : "left-0";
-  return <div className={`absolute ${sideClass} ${alignClass} bg-white border border-border rounded-lg shadow-md overflow-hidden z-20 min-w-30`}>{children}</div>;
+  return <div className={`absolute ${sideClass} ${alignClass} bg-white border border-border rounded-lg shadow-md overflow-hidden z-20 min-w-30 ${className ?? ""}`}>{children}</div>;
 }
 
 interface DropdownItemProps {
