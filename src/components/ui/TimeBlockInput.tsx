@@ -21,7 +21,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [color, setColor] = useState(editingBlock?.color ?? "");
-  const [error, setError] = useState("");
+  const [errorKey, setErrorKey] = useState<string | null>(null);
 
   const isEditMode = editingBlock !== undefined;
 
@@ -42,19 +42,19 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     e.preventDefault();
 
     if (!startTime || !endTime) {
-      setError(t("input.errorBothRequired"));
+      setErrorKey("input.errorBothRequired");
       return;
     }
     if (!isValidTime(startTime)) {
-      setError(t("input.errorInvalidStart"));
+      setErrorKey("input.errorInvalidStart");
       return;
     }
     if (!isValidTime(endTime)) {
-      setError(t("input.errorInvalidEnd"));
+      setErrorKey("input.errorInvalidEnd");
       return;
     }
     if (!isEndAfterStart(startTime, endTime)) {
-      setError(t("input.errorSameTime"));
+      setErrorKey("input.errorSameTime");
       return;
     }
 
@@ -71,7 +71,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       setStartTime("");
       setEndTime("");
       setTitle("");
-      setError("");
+      setErrorKey(null);
     }
   }
 
@@ -108,7 +108,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           onChange={(e) => {
             const val = formatTimeInput(e.target.value);
             setStartTime(val);
-            setError("");
+            setErrorKey(null);
             notifyDraftChange({ startTime: val });
           }}
         />
@@ -121,7 +121,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           onChange={(e) => {
             const val = formatTimeInput(e.target.value);
             setEndTime(val);
-            setError("");
+            setErrorKey(null);
             notifyDraftChange({ endTime: val });
           }}
         />
@@ -135,12 +135,12 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
         maxLength={50}
         onChange={(e) => {
           setTitle(e.target.value);
-          setError("");
+          setErrorKey(null);
           notifyDraftChange({ title: e.target.value });
         }}
       />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {errorKey && <p className="text-sm text-red-500">{t(errorKey)}</p>}
 
       <Button type="submit" className="mt-1">
         {isEditMode ? t("input.update") : t("input.add")}
