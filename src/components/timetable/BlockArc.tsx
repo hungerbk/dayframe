@@ -83,9 +83,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
       ) : (
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
       )}
-      {isSelected && (
-        <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />
-      )}
+      {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (
         <text
           textAnchor="middle"
@@ -93,11 +91,13 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
           fontSize={FONT_SIZE}
           fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
           fontWeight={sketch ? 700 : 600}
-          stroke={sketch ? COLOR_BLOCK_TEXT : undefined}
-          strokeWidth={sketch ? 3 : undefined}
-          style={{ pointerEvents: "none", userSelect: "none", paintOrder: sketch ? "stroke fill" : undefined }}>
+          stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
+          strokeWidth="3"
+          style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
           {titleLines.map((line, i) => (
-            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>{line}</tspan>
+            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
+              {line}
+            </tspan>
           ))}
         </text>
       )}
