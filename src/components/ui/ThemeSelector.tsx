@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { THEMES } from "@/constants/palettes";
 import type { Theme } from "@/constants/palettes";
 
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSketchToggle }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="flex gap-4 flex-wrap justify-center">
       {THEMES.map((theme) => (
@@ -34,14 +36,14 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
       <button
         type="button"
         aria-pressed={isSketch}
-        aria-label="스케치 모드"
+        aria-label={t("theme.sketchMode")}
         onClick={onSketchToggle}
         className={`group flex flex-col items-center gap-2 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
         <div
           className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110 group-hover:bg-border/30" : "border-text/20"}`}>
           <PencilIcon />
         </div>
-        <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/70" : ""}`}>sketch</span>
+        <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/70" : ""}`}>{t("theme.sketch")}</span>
       </button>
     </div>
   );
