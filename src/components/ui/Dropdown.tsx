@@ -27,6 +27,7 @@ export function DropdownItem({ onClick, border, active, children }: DropdownItem
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active ?? false}
       className={`w-full px-4 py-2 text-sm text-left flex items-center justify-between hover:bg-border/30 transition-colors ${borderClass} ${active ? "text-primary font-medium" : "text-text"}`}>
       {children}
     </button>
