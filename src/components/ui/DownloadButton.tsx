@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function DownloadButton({ isDownloading, onDownload, disabled }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { open, toggle, close, anchorProps } = useDropdown();
   const [removeBackground, setRemoveBackground] = useState(false);
 
@@ -44,7 +44,7 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         </svg>
       </button>
       {open && (
-        <DropdownPanel side="top" align="center" className={i18n.language.startsWith("en") ? "min-w-38" : "min-w-30"}>
+        <DropdownPanel side="top" align="center" className="min-w-38">
           <DropdownItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
             <span className={removeBackground ? "text-text" : "text-text/50"}>{t("download.removeBackground")}</span>
             <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? t("download.on") : t("download.off")}</span>
