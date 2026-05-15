@@ -92,7 +92,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
           fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
           fontWeight={sketch ? 700 : 600}
           stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
-          strokeWidth="3"
+          strokeWidth={3}
           style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
           {titleLines.map((line, i) => (
             <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
