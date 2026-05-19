@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
+import { timeToAngle, polar, sectorPath, splitIntoLines, CX, CY, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
 
 const generator = rough.generator();
 
@@ -66,12 +66,21 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
     return generator.toPaths(drawable);
   }, [sketch, block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
+  const clipId = `clip-${block.id}`;
+
   return (
     <g
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
+      {block.imageDataUrl && (
+        <defs>
+          <clipPath id={clipId}>
+            <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
+          </clipPath>
+        </defs>
+      )}
       {sketch ? (
         <>
           {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
@@ -82,6 +91,18 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         </>
       ) : (
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
+      )}
+      {block.imageDataUrl && (
+        <image
+          href={block.imageDataUrl}
+          x={CX - OUTER_R}
+          y={CY - OUTER_R}
+          width={OUTER_R * 2}
+          height={OUTER_R * 2}
+          preserveAspectRatio="xMidYMid slice"
+          clipPath={`url(#${clipId})`}
+          style={{ pointerEvents: "none" }}
+        />
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (

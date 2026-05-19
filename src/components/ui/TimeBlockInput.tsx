@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { isValidTime, isEndAfterStart, formatTimeInput } from "@/utils";
@@ -21,11 +21,14 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [color, setColor] = useState(editingBlock?.color ?? "");
+  const [imageDataUrl, setImageDataUrl] = useState<string | undefined>(editingBlock?.imageDataUrl);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = editingBlock !== undefined;
 
   // 시간이 유효할 때만 draft 변경을 부모에 알린다. 타이핑 중간에 잘못된 값이 전달되지 않게 한다.
+  // imageDataUrl은 현재 상태를 항상 포함해 드래프트와 동기화한다.
   function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string; color?: string }) {
     if (!editingBlock || !onDraftChange) return;
     const next = {
@@ -35,7 +38,29 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       color: overrides.color ?? color,
     };
     if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
-    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined });
+    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined, imageDataUrl });
+  }
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editingBlock || !onDraftChange) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setImageDataUrl(dataUrl);
+      if (isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
+        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: dataUrl });
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleImageRemove() {
+    setImageDataUrl(undefined);
+    if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
+      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: undefined });
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleSubmit(e: React.SyntheticEvent) {
@@ -59,7 +84,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     }
 
     if (isEditMode && editingBlock && onUpdate) {
-      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color });
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl });
     } else {
       onAdd({
         id: crypto.randomUUID(),
@@ -139,6 +164,25 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           notifyDraftChange({ title: e.target.value });
         }}
       />
+
+      {isEditMode && (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-text/60">{t("input.imageLabel")}</span>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+          {imageDataUrl ? (
+            <div className="flex items-center gap-2">
+              <img src={imageDataUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
+              <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
+                {t("input.imageRemove")}
+              </Button>
+            </div>
+          ) : (
+            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full text-sm">
+              {t("input.imageUpload")}
+            </Button>
+          )}
+        </div>
+      )}
 
       {errorKey && <p className="text-sm text-red-500">{t(errorKey)}</p>}
 
