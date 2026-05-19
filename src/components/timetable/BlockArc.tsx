@@ -74,13 +74,6 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
-      {block.imageDataUrl && (
-        <defs>
-          <clipPath id={clipId}>
-            <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
-          </clipPath>
-        </defs>
-      )}
       {sketch ? (
         <>
           {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
@@ -93,16 +86,25 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
       )}
       {block.imageDataUrl && (
-        <image
-          href={block.imageDataUrl}
-          x={CX - OUTER_R}
-          y={CY - OUTER_R}
-          width={OUTER_R * 2}
-          height={OUTER_R * 2}
-          preserveAspectRatio="xMidYMid slice"
-          clipPath={`url(#${clipId})`}
-          style={{ pointerEvents: "none" }}
-        />
+        <>
+          <defs>
+            <clipPath id={clipId}>
+              <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
+            </clipPath>
+          </defs>
+          {/* clipPath는 바깥 g에, transform은 안쪽 image에 분리해야 클립 경계가 고정된 채로 이미지 내용만 이동/확대된다 */}
+          <g clipPath={`url(#${clipId})`} style={{ pointerEvents: "none" }}>
+            <image
+              href={block.imageDataUrl}
+              x={CX - OUTER_R}
+              y={CY - OUTER_R}
+              width={OUTER_R * 2}
+              height={OUTER_R * 2}
+              preserveAspectRatio="xMidYMid slice"
+              transform={`translate(${CX + (block.imageOffsetX ?? 0)}, ${CY + (block.imageOffsetY ?? 0)}) scale(${block.imageScale ?? 1}) translate(${-CX}, ${-CY})`}
+            />
+          </g>
+        </>
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (

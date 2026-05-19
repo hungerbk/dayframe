@@ -14,7 +14,10 @@
     "errorSameTime": "Start and end time cannot be the same.",
     "imageLabel": "Image (optional)",
     "imageUpload": "Add image",
-    "imageRemove": "Remove image"
+    "imageRemove": "Remove image",
+    "imageOffsetX": "X",
+    "imageOffsetY": "Y",
+    "imageScale": "Zoom"
   },
   "controls": {
     "shapeDonut": "Donut shape",

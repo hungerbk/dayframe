@@ -22,6 +22,9 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [color, setColor] = useState(editingBlock?.color ?? "");
   const [imageDataUrl, setImageDataUrl] = useState<string | undefined>(editingBlock?.imageDataUrl);
+  const [imageOffsetX, setImageOffsetX] = useState(editingBlock?.imageOffsetX ?? 0);
+  const [imageOffsetY, setImageOffsetY] = useState(editingBlock?.imageOffsetY ?? 0);
+  const [imageScale, setImageScale] = useState(editingBlock?.imageScale ?? 1);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,7 +41,13 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       color: overrides.color ?? color,
     };
     if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
-    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined, imageDataUrl });
+    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+  }
+
+  function notifyImageTransform(ox: number, oy: number, sc: number) {
+    if (!editingBlock || !onDraftChange) return;
+    if (!isValidTime(startTime) || !isValidTime(endTime) || !isEndAfterStart(startTime, endTime)) return;
+    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl, imageOffsetX: ox, imageOffsetY: oy, imageScale: sc });
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -48,8 +57,11 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setImageDataUrl(dataUrl);
+      setImageOffsetX(0);
+      setImageOffsetY(0);
+      setImageScale(1);
       if (isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
-        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: dataUrl });
+        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: dataUrl, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
       }
     };
     reader.readAsDataURL(file);
@@ -57,8 +69,11 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
 
   function handleImageRemove() {
     setImageDataUrl(undefined);
+    setImageOffsetX(0);
+    setImageOffsetY(0);
+    setImageScale(1);
     if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
-      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: undefined });
+      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: undefined, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -84,7 +99,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     }
 
     if (isEditMode && editingBlock && onUpdate) {
-      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl });
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
     } else {
       onAdd({
         id: crypto.randomUUID(),
@@ -170,12 +185,41 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           <span className="text-xs font-medium text-text/60">{t("input.imageLabel")}</span>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           {imageDataUrl ? (
-            <div className="flex items-center gap-2">
-              <img src={imageDataUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
-              <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
-                {t("input.imageRemove")}
-              </Button>
-            </div>
+            <>
+              <div className="flex items-center gap-2">
+                <img src={imageDataUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
+                <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
+                  {t("input.imageRemove")}
+                </Button>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-1">
+                {([
+                  { key: "imageOffsetX", label: t("input.imageOffsetX"), value: imageOffsetX, setter: setImageOffsetX, min: -230, max: 230, step: 1 },
+                  { key: "imageOffsetY", label: t("input.imageOffsetY"), value: imageOffsetY, setter: setImageOffsetY, min: -230, max: 230, step: 1 },
+                  { key: "imageScale",   label: t("input.imageScale"),   value: imageScale,   setter: setImageScale,   min: 0.5,  max: 3,   step: 0.05 },
+                ] as const).map(({ key, label, value, setter, min, max, step }) => (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="text-xs text-text/60 w-6 shrink-0">{label}</span>
+                    <input
+                      type="range"
+                      min={min}
+                      max={max}
+                      step={step}
+                      value={value}
+                      className="flex-1 accent-primary h-1 cursor-pointer"
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setter(v as never);
+                        const nx = key === "imageOffsetX" ? v : imageOffsetX;
+                        const ny = key === "imageOffsetY" ? v : imageOffsetY;
+                        const ns = key === "imageScale"   ? v : imageScale;
+                        notifyImageTransform(nx, ny, ns);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full text-sm">
               {t("input.imageUpload")}

@@ -14,7 +14,10 @@
     "errorSameTime": "시작 시간과 종료 시간은 같을 수 없습니다.",
     "imageLabel": "이미지 (선택)",
     "imageUpload": "이미지 추가",
-    "imageRemove": "이미지 제거"
+    "imageRemove": "이미지 제거",
+    "imageOffsetX": "좌우",
+    "imageOffsetY": "상하",
+    "imageScale": "크기"
   },
   "controls": {
     "shapeDonut": "도넛 모양",
