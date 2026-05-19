@@ -182,7 +182,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
 
       {isEditMode && (
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-text/60">{t("input.imageLabel")}</span>
+          <span className="text-sm font-medium text-text">{t("input.imageLabel")}</span>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           {imageDataUrl ? (
             <>
@@ -193,20 +193,21 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
                 </Button>
               </div>
               <div className="flex flex-col gap-1.5 mt-1">
+                <span className="text-sm font-medium text-text">{t("input.imageAdjust")}</span>
                 {([
-                  { key: "imageOffsetX", label: t("input.imageOffsetX"), value: imageOffsetX, setter: setImageOffsetX, min: -230, max: 230, step: 1 },
-                  { key: "imageOffsetY", label: t("input.imageOffsetY"), value: imageOffsetY, setter: setImageOffsetY, min: -230, max: 230, step: 1 },
-                  { key: "imageScale",   label: t("input.imageScale"),   value: imageScale,   setter: setImageScale,   min: 0.5,  max: 3,   step: 0.05 },
-                ] as const).map(({ key, label, value, setter, min, max, step }) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className="text-xs text-text/60 w-6 shrink-0">{label}</span>
+                  { key: "imageOffsetX", left: "←", right: "→", value: imageOffsetX, setter: setImageOffsetX, min: -230, max: 230, step: 1 },
+                  { key: "imageOffsetY", left: "↑", right: "↓", value: imageOffsetY, setter: setImageOffsetY, min: -230, max: 230, step: 1 },
+                  { key: "imageScale",   left: "−", right: "+", value: imageScale,   setter: setImageScale,   min: 0.5,  max: 3,   step: 0.05 },
+                ] as const).map(({ key, left, right, value, setter, min, max, step }) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <span className="text-base text-text/50 w-5 text-center shrink-0">{left}</span>
                     <input
                       type="range"
                       min={min}
                       max={max}
                       step={step}
                       value={value}
-                      className="flex-1 accent-primary h-1 cursor-pointer"
+                      className="flex-1 accent-primary cursor-pointer"
                       onChange={(e) => {
                         const v = Number(e.target.value);
                         setter(v as never);
@@ -216,6 +217,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
                         notifyImageTransform(nx, ny, ns);
                       }}
                     />
+                    <span className="text-base text-text/50 w-5 text-center shrink-0">{right}</span>
                   </div>
                 ))}
               </div>

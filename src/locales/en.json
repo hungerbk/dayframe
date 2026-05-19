@@ -15,9 +15,7 @@
     "imageLabel": "Image (optional)",
     "imageUpload": "Add image",
     "imageRemove": "Remove image",
-    "imageOffsetX": "X",
-    "imageOffsetY": "Y",
-    "imageScale": "Zoom"
+    "imageAdjust": "Adjust image"
   },
   "controls": {
     "shapeDonut": "Donut shape",

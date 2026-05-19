@@ -15,9 +15,7 @@
     "imageLabel": "이미지 (선택)",
     "imageUpload": "이미지 추가",
     "imageRemove": "이미지 제거",
-    "imageOffsetX": "좌우",
-    "imageOffsetY": "상하",
-    "imageScale": "크기"
+    "imageAdjust": "이미지 조정"
   },
   "controls": {
     "shapeDonut": "도넛 모양",
