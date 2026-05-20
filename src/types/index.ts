@@ -4,5 +4,9 @@ export interface TimeBlock {
   endTime: string
   title?: string
   color: string
+  imageDataUrl?: string
+  imageOffsetX?: number
+  imageOffsetY?: number
+  imageScale?: number
 }
 

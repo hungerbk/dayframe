@@ -11,7 +11,11 @@
     "errorBothRequired": "Please enter both start and end time.",
     "errorInvalidStart": "Invalid start time. (Please enter between 00:00 and 24:00.)",
     "errorInvalidEnd": "Invalid end time. (Please enter between 00:00 and 24:00.)",
-    "errorSameTime": "Start and end time cannot be the same."
+    "errorSameTime": "Start and end time cannot be the same.",
+    "imageLabel": "Image (optional)",
+    "imageUpload": "Add image",
+    "imageRemove": "Remove image",
+    "imageAdjust": "Adjust image"
   },
   "controls": {
     "shapeDonut": "Donut shape",
@@ -20,6 +24,7 @@
     "displayBlock": "My schedule",
     "displayMajor": "Major times",
     "displayNone": "None",
+    "reset": "Reset",
     "blockReset": "Reset blocks",
     "fullReset": "Full reset"
   },

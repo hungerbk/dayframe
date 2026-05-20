@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { timeToAngle, polar, sectorPath, splitIntoLines, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
+import { timeToAngle, polar, sectorPath, splitIntoLines, CX, CY, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
 
 const generator = rough.generator();
 
@@ -66,6 +66,8 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
     return generator.toPaths(drawable);
   }, [sketch, block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
+  const clipId = `clip-${block.id}`;
+
   return (
     <g
       onClick={onClick}
@@ -82,6 +84,27 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         </>
       ) : (
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
+      )}
+      {block.imageDataUrl && (
+        <>
+          <defs>
+            <clipPath id={clipId}>
+              <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
+            </clipPath>
+          </defs>
+          {/* clipPath는 바깥 g에, transform은 안쪽 image에 분리해야 클립 경계가 고정된 채로 이미지 내용만 이동/확대된다 */}
+          <g clipPath={`url(#${clipId})`} style={{ pointerEvents: "none" }}>
+            <image
+              href={block.imageDataUrl}
+              x={CX - OUTER_R}
+              y={CY - OUTER_R}
+              width={OUTER_R * 2}
+              height={OUTER_R * 2}
+              preserveAspectRatio="xMidYMid slice"
+              transform={`translate(${CX + (block.imageOffsetX ?? 0)}, ${CY + (block.imageOffsetY ?? 0)}) scale(${block.imageScale ?? 1}) translate(${-CX}, ${-CY})`}
+            />
+          </g>
+        </>
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (

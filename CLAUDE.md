@@ -32,12 +32,30 @@ npm run preview   # 빌드 결과물 미리보기
 원형 시간표는 600×600 `viewBox`의 SVG 위에 그려진다.
 
 - **`svgUtils.ts`** — 좌표 상수(`CX`, `CY`, `OUTER_R`, `INNER_R` 등), 색상 상수, `timeToAngle` / `polar` / `sectorPath` 좌표 계산 함수, `splitIntoLines` 텍스트 줄바꿈 함수가 모두 이 파일에 있다.
-- **`BlockArc.tsx`** — `BlockArc`(일반)와 `SketchBlockArc`(스케치) 두 가지 변형이 있다. `sectorPath`로 SVG `<path>` d 문자열을 생성하고, rough.js path는 `useMemo`로 캐싱해 re-render 시 흔들리지 않게 한다.
+- **`BlockArc.tsx`** — `sketch` prop 하나로 일반/스케치 렌더링을 전환한다. `sectorPath`로 SVG `<path>` d 문자열을 생성하고, rough.js path는 `useMemo`로 캐싱해 re-render 시 흔들리지 않게 한다. 블록에 이미지가 있으면 `<clipPath>`로 섹터 모양대로 잘라 `<image>`를 렌더링한다.
 - **`TimetableCircle.tsx`** — 시계 배경(원/스케치), 눈금(HourTicks/SketchHourTicks), 시각 레이블(HourLabels)을 담당한다. `SketchBackground`, `SketchHourTicks`는 `memo`로 감싸져 있다.
 
 ### 스케치 모드
 
 `isSketch` boolean 하나로 일반/스케치 렌더링을 전환한다. rough.js의 `generator`는 모듈 레벨 싱글턴으로 선언되어 있다(`BlockArc.tsx`, `TimetableCircle.tsx` 각각). 스케치 전용 폰트(`RoughlyWrittenJunwoo`)는 CDN에서 불러온다.
+
+### 블록 이미지
+
+`TimeBlock` 타입에 `imageDataUrl?: string`, `imageOffsetX?: number`, `imageOffsetY?: number`, `imageScale?: number` 필드가 있다. 이미지는 `FileReader.readAsDataURL()`로 base64로 변환해 저장되며, localStorage에도 그대로 직렬화된다.
+
+**SVG 렌더링**: `<clipPath>`를 바깥 `<g>`에, `transform`을 안쪽 `<image>`에 분리하는 것이 핵심이다. 같은 요소에 함께 적용하면 클립 경계까지 같이 이동/확대된다.
+
+```
+<g clipPath="url(#clip-{id})">           ← 클립 경계 고정
+  <image transform="translate..." />     ← 이미지 내용만 이동/확대
+</g>
+```
+
+**transform 패턴**: `translate(CX+offsetX, CY+offsetY) scale(s) translate(-CX, -CY)` — 원의 중심 기준으로 확대 후 오프셋을 더한다.
+
+**PNG 캡처**: base64 data URL은 외부 리소스가 아니므로 CORS 오염 없이 Canvas에 그려진다.
+
+**향후 리팩터링**: 커스텀 컬러 기능 구현 시 색상(팔레트 + 커스텀) + 이미지를 `BlockStyleInput` 컴포넌트로 묶어 `TimeBlockInput`에서 분리할 예정이다.
 
 ### 도넛/원형 모드
 
@@ -76,13 +94,13 @@ useLocalStorage<T>(key, defaultValue)   ← JSON 파싱, 자동 저장, clear() 
 타임트래커 등 새로운 뷰에서 `usePngDownload`를 재사용할 때 고려할 점:
 
 - **SVG 외부 HTML은 캡처되지 않는다.** 제목, 범례 등 텍스트를 함께 캡처하려면 SVG 내부의 `<text>` 요소로 구성해야 한다. HTML 요소를 함께 캡처해야 한다면 `foreignObject`를 쓰거나 별도의 캡처 전략이 필요하다.
-- **이미지(배경 이미지 등)를 SVG 안에 삽입할 경우** CORS 제약으로 Canvas가 오염(tainted)될 수 있다. 외부 이미지는 서버 측 프록시나 blob URL 변환을 거쳐야 한다.
+- **이미지를 SVG 안에 삽입할 경우** 외부 URL이면 CORS 제약으로 Canvas가 오염(tainted)될 수 있다. 현재 블록 이미지는 base64 data URL로 저장하므로 문제없다. 외부 URL을 직접 사용해야 한다면 서버 측 프록시나 blob URL 변환이 필요하다.
 - **CSS 변수로 색상을 지정한 SVG 요소**는 직렬화 후 색상이 사라진다. `data-bg-fill` 패턴처럼 별도 속성으로 마킹하고 `captureAsPng` 내부에서 교체 처리를 추가해야 한다.
 
 ## 코딩 컨벤션
 
 - 경로 별칭 `@/` → `src/` (vite.config의 `resolve.alias`)
-- UI 공통 컴포넌트(`Button`, `Input`, `ToggleGroup`)는 `src/components/ui/`에 위치
-- 스케치 변형 컴포넌트는 같은 파일 내에 일반 컴포넌트와 나란히 export (`BlockArc` / `SketchBlockArc`)
+- UI 공통 컴포넌트(`Button`, `Input`, `ToggleGroup`, `Dropdown`)는 `src/components/ui/`에 위치. `Dropdown.tsx`는 `DropdownPanel`(패널 컨테이너)과 `DropdownItem`(아이템 버튼)을 export한다.
+- 스케치 변형은 별도 컴포넌트가 아닌 `sketch` prop으로 처리한다 (`BlockArc`의 `sketch?: boolean`)
 - 색상 상수는 `svgUtils.ts`에 집중 관리, UI 색상 변수는 CSS custom properties로 관리
 - 주석은 한국어로 작성
