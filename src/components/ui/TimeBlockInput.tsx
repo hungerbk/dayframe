@@ -210,7 +210,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
                       className="flex-1 accent-primary cursor-pointer"
                       onChange={(e) => {
                         const v = Number(e.target.value);
-                        setter(v as never);
+                        setter(v);
                         const nx = key === "imageOffsetX" ? v : imageOffsetX;
                         const ny = key === "imageOffsetY" ? v : imageOffsetY;
                         const ns = key === "imageScale"   ? v : imageScale;
