@@ -187,7 +187,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           {imageDataUrl ? (
             <>
               <div className="flex items-center gap-2">
-                <img src={imageDataUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
+                <img src={imageDataUrl} alt={title} className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
                 <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
                   {t("input.imageRemove")}
                 </Button>
