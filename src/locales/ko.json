@@ -24,6 +24,7 @@
     "displayBlock": "내 일정",
     "displayMajor": "주요 시각",
     "displayNone": "없음",
+    "reset": "초기화",
     "blockReset": "내용 초기화",
     "fullReset": "전체 초기화"
   },
