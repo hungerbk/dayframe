@@ -21,18 +21,21 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [color, setColor] = useState(editingBlock?.color ?? "");
+  const [customColor, setCustomColor] = useState(editingBlock?.customColor);
   const [imageDataUrl, setImageDataUrl] = useState<string | undefined>(editingBlock?.imageDataUrl);
   const [imageOffsetX, setImageOffsetX] = useState(editingBlock?.imageOffsetX ?? 0);
   const [imageOffsetY, setImageOffsetY] = useState(editingBlock?.imageOffsetY ?? 0);
   const [imageScale, setImageScale] = useState(editingBlock?.imageScale ?? 1);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = editingBlock !== undefined;
 
   // 시간이 유효할 때만 draft 변경을 부모에 알린다. 타이핑 중간에 잘못된 값이 전달되지 않게 한다.
   // imageDataUrl은 현재 상태를 항상 포함해 드래프트와 동기화한다.
-  function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string; color?: string }) {
+  // clearCustomColor=true이면 customColor를 undefined로 초기화한다.
+  function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string; color?: string; customColor?: string; clearCustomColor?: boolean }) {
     if (!editingBlock || !onDraftChange) return;
     const next = {
       startTime: overrides.startTime ?? startTime,
@@ -40,14 +43,15 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       title: overrides.title ?? title,
       color: overrides.color ?? color,
     };
+    const nextCustomColor = overrides.clearCustomColor ? undefined : (overrides.customColor ?? customColor);
     if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
-    onDraftChange({ ...editingBlock, ...next, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+    onDraftChange({ ...editingBlock, ...next, customColor: nextCustomColor, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
   }
 
   function notifyImageTransform(ox: number, oy: number, sc: number) {
     if (!editingBlock || !onDraftChange) return;
     if (!isValidTime(startTime) || !isValidTime(endTime) || !isEndAfterStart(startTime, endTime)) return;
-    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl, imageOffsetX: ox, imageOffsetY: oy, imageScale: sc });
+    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl, imageOffsetX: ox, imageOffsetY: oy, imageScale: sc });
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,7 +65,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       setImageOffsetY(0);
       setImageScale(1);
       if (isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
-        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: dataUrl, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
+        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl: dataUrl, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
       }
     };
     reader.readAsDataURL(file);
@@ -73,7 +77,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     setImageOffsetY(0);
     setImageScale(1);
     if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
-      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl: undefined, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
+      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl: undefined, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -99,7 +103,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     }
 
     if (isEditMode && editingBlock && onUpdate) {
-      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
     } else {
       onAdd({
         id: crypto.randomUUID(),
@@ -118,24 +122,61 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background">
       {isEditMode && blockColors && blockColors.length > 0 && (
-        <div className="flex-1 flex justify-end gap-3">
-          {blockColors.map((c) => (
+        <div className="flex items-center gap-3">
+          {/* 커스텀 색상 피커 */}
+          <div className="relative flex-1 h-7">
             <button
-              key={c}
               type="button"
-              onClick={() => {
-                setColor(c);
-                notifyDraftChange({ color: c });
-              }}
-              className="w-7 h-7 rounded-full transition-transform hover:scale-110"
-              style={{
-                backgroundColor: c,
-                outline: c === color ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
+              className="h-7 w-full rounded transition-opacity hover:opacity-80"
+              style={customColor ? {
+                backgroundColor: customColor,
+                outline: "2.5px solid var(--color-primary)",
                 outlineOffset: "2px",
+                color: "transparent",
+              } : {
+                background: "linear-gradient(135deg, red, orange, yellow, green, blue, violet)",
+                outline: "2.5px solid transparent",
+                outlineOffset: "2px",
+                color: "transparent",
               }}
-              aria-label={c}
+              onClick={() => colorInputRef.current?.click()}
+              aria-label="커스텀 색상 선택"
             />
-          ))}
+            <input
+              ref={colorInputRef}
+              type="color"
+              value={customColor ?? "#808080"}
+              className="absolute opacity-0 w-px h-px"
+              onChange={(e) => {
+                const c = e.target.value;
+                setColor(c);
+                setCustomColor(c);
+                notifyDraftChange({ color: c, customColor: c });
+              }}
+            />
+          </div>
+          <div className="w-px h-5 bg-border shrink-0" />
+          {/* 팔레트 색상 */}
+          <div className="flex justify-end gap-3">
+            {blockColors.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => {
+                  setColor(c);
+                  setCustomColor(undefined);
+                  notifyDraftChange({ color: c, clearCustomColor: true });
+                }}
+                className="w-7 h-7 rounded-full transition-transform hover:scale-110"
+                style={{
+                  backgroundColor: c,
+                  outline: c === color && !customColor ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
+                  outlineOffset: "2px",
+                }}
+                aria-label={c}
+              />
+            ))}
+          </div>
         </div>
       )}
       <div className="flex gap-3">

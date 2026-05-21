@@ -63,13 +63,14 @@ export default function Timetable() {
     setBlocks((prev) =>
       prev.map((block, i) => ({
         ...block,
-        color: theme.blockColors[i % theme.blockColors.length],
+        // customColor가 있는 블록은 테마 변경 영향을 받지 않는다
+        color: block.customColor ?? theme.blockColors[i % theme.blockColors.length],
       })),
     );
     if (editingDraft) {
       const idx = blocks.findIndex((b) => b.id === editingDraft.id);
       if (idx !== -1) {
-        setEditingDraft({ ...editingDraft, color: theme.blockColors[idx % theme.blockColors.length] });
+        setEditingDraft({ ...editingDraft, color: editingDraft.customColor ?? theme.blockColors[idx % theme.blockColors.length] });
       }
     }
   }
