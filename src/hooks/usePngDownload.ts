@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { CX, CY, OUTER_R } from "@/components/timetable/svgUtils";
 
 export type DownloadSize = "square" | "mobile";
 
@@ -53,10 +54,10 @@ async function captureAsPng(container: HTMLDivElement, captureColor: string, isS
     if (donutHoleEl) {
       const innerR = parseFloat(donutHoleEl.getAttribute("r") || "0");
       if (innerR > 0) {
-        const cx = parseFloat(donutHoleEl.getAttribute("cx") || "300");
-        const cy = parseFloat(donutHoleEl.getAttribute("cy") || "300");
+        const cx = parseFloat(donutHoleEl.getAttribute("cx") || String(CX));
+        const cy = parseFloat(donutHoleEl.getAttribute("cy") || String(CY));
         const outerEl = svgClone.querySelector("[data-outer-circle]") as SVGCircleElement | null;
-        const outerR = outerEl ? parseFloat(outerEl.getAttribute("r") || "285") : 285;
+        const outerR = parseFloat((outerEl?.getAttribute("r")) || String(OUTER_R));
 
         let defs = svgClone.querySelector("defs");
         if (!defs) {
