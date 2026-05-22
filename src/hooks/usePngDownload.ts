@@ -17,7 +17,7 @@ async function loadSketchFontCSS(): Promise<string> {
   return sketchFontCSSCache;
 }
 
-async function captureAsPng(container: HTMLDivElement, captureColor: string, isSketch: boolean): Promise<string> {
+async function captureAsPng(container: HTMLDivElement, captureColor: string, isSketch: boolean, transparent: boolean): Promise<string> {
   const svg = container.querySelector("svg");
   if (!svg) throw new Error("SVG not found");
 
@@ -42,10 +42,47 @@ async function captureAsPng(container: HTMLDivElement, captureColor: string, isS
     defs.appendChild(styleEl);
   }
 
-  // CSS 변수로 채워진 fill을 실제 색상으로 교체
+  // CSS 변수로 채워진 fill을 실제 색상으로 교체 (배경 제거 시 none으로 처리)
   svgClone.querySelectorAll("[data-bg-fill]").forEach((el) => {
-    el.setAttribute("fill", captureColor);
+    el.setAttribute("fill", transparent ? "none" : captureColor);
   });
+
+  // 배경 제거 + 도넛 모드: 외곽 원 배경을 도넛 모양으로 클리핑해 중심을 투명하게 만든다
+  if (transparent) {
+    const donutHoleEl = svgClone.querySelector("circle[data-bg-fill]") as SVGCircleElement | null;
+    if (donutHoleEl) {
+      const innerR = parseFloat(donutHoleEl.getAttribute("r") || "0");
+      if (innerR > 0) {
+        const cx = parseFloat(donutHoleEl.getAttribute("cx") || "300");
+        const cy = parseFloat(donutHoleEl.getAttribute("cy") || "300");
+        const outerEl = svgClone.querySelector("[data-outer-circle]") as SVGCircleElement | null;
+        const outerR = outerEl ? parseFloat(outerEl.getAttribute("r") || "285") : 285;
+
+        let defs = svgClone.querySelector("defs");
+        if (!defs) {
+          defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+          svgClone.insertBefore(defs, svgClone.firstChild);
+        }
+
+        // evenodd 규칙으로 바깥 원에서 안쪽 구멍을 뚫는 clipPath
+        const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+        clipPath.setAttribute("id", "donut-bg-clip");
+        const clipShape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        clipShape.setAttribute("clip-rule", "evenodd");
+        clipShape.setAttribute(
+          "d",
+          `M ${cx - outerR},${cy} a ${outerR},${outerR} 0 1,0 ${2 * outerR},0 a ${outerR},${outerR} 0 1,0 ${-2 * outerR},0 ` +
+            `M ${cx - innerR},${cy} a ${innerR},${innerR} 0 1,0 ${2 * innerR},0 a ${innerR},${innerR} 0 1,0 ${-2 * innerR},0`,
+        );
+        clipPath.appendChild(clipShape);
+        defs.appendChild(clipPath);
+
+        if (outerEl) outerEl.setAttribute("clip-path", "url(#donut-bg-clip)");
+        const sketchBgEl = svgClone.querySelector("[data-sketch-background]") as SVGElement | null;
+        if (sketchBgEl) sketchBgEl.setAttribute("clip-path", "url(#donut-bg-clip)");
+      }
+    }
+  }
 
   const svgStr = new XMLSerializer().serializeToString(svgClone);
   const url = URL.createObjectURL(new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" }));
@@ -54,8 +91,11 @@ async function captureAsPng(container: HTMLDivElement, captureColor: string, isS
   canvas.width = pw;
   canvas.height = ph;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = captureColor;
-  ctx.fillRect(0, 0, pw, ph);
+  // 배경 제거 시 canvas는 기본값인 투명 상태 유지
+  if (!transparent) {
+    ctx.fillStyle = captureColor;
+    ctx.fillRect(0, 0, pw, ph);
+  }
 
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -72,7 +112,7 @@ async function captureAsPng(container: HTMLDivElement, captureColor: string, isS
   });
 }
 
-function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<string> {
+function composeMobileCanvas(squareDataUrl: string, bgColor: string, transparent: boolean): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
@@ -82,8 +122,10 @@ function composeMobileCanvas(squareDataUrl: string, bgColor: string): Promise<st
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext("2d")!;
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, w, h);
+      if (!transparent) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, w, h);
+      }
       ctx.drawImage(img, 0, Math.round((h - w) / 2), w, w);
       resolve(canvas.toDataURL("image/png"));
     };
@@ -99,13 +141,13 @@ export function usePngDownload(bgColor: string, isSketch: boolean) {
     if (!targetRef.current || isDownloading) return;
     setIsDownloading(true);
 
-    const captureColor = removeBackground ? "#ffffff" : bgColor;
+    const captureColor = bgColor;
 
     try {
       const date = new Date().toISOString().slice(0, 10);
-      const squareDataUrl = await captureAsPng(targetRef.current, captureColor, isSketch);
+      const squareDataUrl = await captureAsPng(targetRef.current, captureColor, isSketch, removeBackground);
       const finalDataUrl =
-        size === "mobile" ? await composeMobileCanvas(squareDataUrl, captureColor) : squareDataUrl;
+        size === "mobile" ? await composeMobileCanvas(squareDataUrl, captureColor, removeBackground) : squareDataUrl;
       const link = document.createElement("a");
       link.download = `dayframe-${date}.png`;
       link.href = finalDataUrl;

@@ -128,7 +128,7 @@ export default function Timetable() {
       <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
         <div ref={targetRef} className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
-            {isSketch ? <SketchBackground /> : <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} />}
+            {isSketch ? <SketchBackground /> : <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} data-outer-circle />}
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
