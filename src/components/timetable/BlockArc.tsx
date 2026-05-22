@@ -67,6 +67,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   }, [sketch, block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
   const clipId = `clip-${block.id}`;
+  const maskId = `mask-${block.id}`;
 
   return (
     <g
@@ -91,9 +92,17 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
             <clipPath id={clipId}>
               <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
             </clipPath>
+            {/* 스케치 모드: rough.js 경로를 마스크로 사용해 이미지가 해칭 선 위에만 보이게 한다 */}
+            {sketch && (
+              <mask id={maskId}>
+                {roughPaths.map((p, i) => (
+                  <path key={i} d={p.d} stroke="white" strokeWidth={(p.strokeWidth ?? 1) * 4} fill={p.fill && p.fill !== "none" ? "white" : "none"} />
+                ))}
+              </mask>
+            )}
           </defs>
           {/* clipPath는 바깥 g에, transform은 안쪽 image에 분리해야 클립 경계가 고정된 채로 이미지 내용만 이동/확대된다 */}
-          <g clipPath={`url(#${clipId})`} style={{ pointerEvents: "none" }}>
+          <g clipPath={`url(#${clipId})`} mask={sketch ? `url(#${maskId})` : undefined} style={{ pointerEvents: "none" }}>
             <image
               href={block.imageDataUrl}
               x={CX - OUTER_R}

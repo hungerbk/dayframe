@@ -94,7 +94,7 @@ export const SketchBackground = memo(function SketchBackground() {
     return generator.toPaths(drawable);
   }, []);
   return (
-    <g>
+    <g data-sketch-background>
       {paths.map((p, i) => (
         <path key={i} d={p.d} stroke={p.stroke} strokeWidth={p.strokeWidth} fill={p.fill ?? COLOR_SKETCH_BG} />
       ))}
