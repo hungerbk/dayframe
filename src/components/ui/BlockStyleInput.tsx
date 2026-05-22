@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   color: string;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function BlockStyleInput({ color, customColor, blockColors, onColorChange }: Props) {
+  const { t } = useTranslation();
   const colorInputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -28,7 +30,7 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
             color: "transparent",
           }}
           onClick={() => colorInputRef.current?.click()}
-          aria-label="커스텀 색상 선택"
+          aria-label={t("input.customColorLabel")}
         />
         <input
           ref={colorInputRef}

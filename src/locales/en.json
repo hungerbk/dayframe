@@ -16,7 +16,8 @@
     "imageUpload": "Add image",
     "imageRemove": "Remove image",
     "imageAdjust": "Adjust image",
-    "updateHint": "Changes apply when you click Update."
+    "updateHint": "Changes apply when you click Update.",
+    "customColorLabel": "Pick custom color"
   },
   "controls": {
     "shapeDonut": "Donut shape",

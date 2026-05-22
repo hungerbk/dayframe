@@ -164,6 +164,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
 
       {isEditMode && (
         <BlockImageInput
+          title={title}
           imageDataUrl={imageDataUrl}
           imageOffsetX={imageOffsetX}
           imageOffsetY={imageOffsetY}

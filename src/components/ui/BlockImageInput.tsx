@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Button from "./Button";
 
 interface Props {
+  title?: string;
   imageDataUrl?: string;
   imageOffsetX: number;
   imageOffsetY: number;
@@ -12,7 +13,7 @@ interface Props {
   onImageTransform: (offsetX: number, offsetY: number, scale: number) => void;
 }
 
-export default function BlockImageInput({ imageDataUrl, imageOffsetX, imageOffsetY, imageScale, onImageLoad, onImageRemove, onImageTransform }: Props) {
+export default function BlockImageInput({ title, imageDataUrl, imageOffsetX, imageOffsetY, imageScale, onImageLoad, onImageRemove, onImageTransform }: Props) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +37,7 @@ export default function BlockImageInput({ imageDataUrl, imageOffsetX, imageOffse
       {imageDataUrl ? (
         <>
           <div className="flex items-center gap-2">
-            <img src={imageDataUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
+            <img src={imageDataUrl} alt={title} className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
             <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
               {t("input.imageRemove")}
             </Button>
