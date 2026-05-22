@@ -53,7 +53,7 @@ export const THEMES: Theme[] = [
   {
     id: "lavender",
     name: "Lavender",
-    blockColors: ["#7C3AED", "#9F67F5", "#C4B5FD", "#EDE9FE"],
+    blockColors: ["#7C3AED", "#9F67F5", "#C4B5FD", "#DDD6FE"],
     ui: {
       primary: "#7C3AED",
       border: "#C4B5FD",
