@@ -1,9 +1,11 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { isValidTime, isEndAfterStart, formatTimeInput } from "@/utils";
 import Input from "./Input";
 import Button from "./Button";
+import BlockStyleInput from "./BlockStyleInput";
+import BlockImageInput from "./BlockImageInput";
 
 interface Props {
   onAdd: (block: Omit<TimeBlock, "color">) => void;
@@ -27,48 +29,36 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [imageOffsetY, setImageOffsetY] = useState(editingBlock?.imageOffsetY ?? 0);
   const [imageScale, setImageScale] = useState(editingBlock?.imageScale ?? 1);
   const [errorKey, setErrorKey] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const colorInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = editingBlock !== undefined;
 
-  // 시간이 유효할 때만 draft 변경을 부모에 알린다. 타이핑 중간에 잘못된 값이 전달되지 않게 한다.
-  // imageDataUrl은 현재 상태를 항상 포함해 드래프트와 동기화한다.
-  // clearCustomColor=true이면 customColor를 undefined로 초기화한다.
-  function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string; color?: string; customColor?: string; clearCustomColor?: boolean }) {
+  function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string }) {
     if (!editingBlock || !onDraftChange) return;
     const next = {
       startTime: overrides.startTime ?? startTime,
       endTime: overrides.endTime ?? endTime,
       title: overrides.title ?? title,
-      color: overrides.color ?? color,
     };
-    const nextCustomColor = overrides.clearCustomColor ? undefined : (overrides.customColor ?? customColor);
     if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
-    onDraftChange({ ...editingBlock, ...next, customColor: nextCustomColor, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+    onDraftChange({ ...editingBlock, ...next, color, customColor, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
   }
 
-  function notifyImageTransform(ox: number, oy: number, sc: number) {
+  function handleColorChange(newColor: string, newCustomColor: string | undefined) {
+    setColor(newColor);
+    setCustomColor(newCustomColor);
     if (!editingBlock || !onDraftChange) return;
     if (!isValidTime(startTime) || !isValidTime(endTime) || !isEndAfterStart(startTime, endTime)) return;
-    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl, imageOffsetX: ox, imageOffsetY: oy, imageScale: sc });
+    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color: newColor, customColor: newCustomColor, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
   }
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editingBlock || !onDraftChange) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setImageDataUrl(dataUrl);
-      setImageOffsetX(0);
-      setImageOffsetY(0);
-      setImageScale(1);
-      if (isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
-        onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl: dataUrl, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
-      }
-    };
-    reader.readAsDataURL(file);
+  function handleImageLoad(dataUrl: string) {
+    setImageDataUrl(dataUrl);
+    setImageOffsetX(0);
+    setImageOffsetY(0);
+    setImageScale(1);
+    if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
+      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl: dataUrl, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
+    }
   }
 
   function handleImageRemove() {
@@ -79,7 +69,15 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
       onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl: undefined, imageOffsetX: 0, imageOffsetY: 0, imageScale: 1 });
     }
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleImageTransform(ox: number, oy: number, sc: number) {
+    setImageOffsetX(ox);
+    setImageOffsetY(oy);
+    setImageScale(sc);
+    if (editingBlock && onDraftChange && isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime)) {
+      onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl, imageOffsetX: ox, imageOffsetY: oy, imageScale: sc });
+    }
   }
 
   function handleSubmit(e: React.SyntheticEvent) {
@@ -121,64 +119,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background">
-      {isEditMode && blockColors && blockColors.length > 0 && (
-        <div className="flex items-center gap-3">
-          {/* 커스텀 색상 피커 */}
-          <div className="relative flex-1 h-7">
-            <button
-              type="button"
-              className="h-7 w-full rounded transition-opacity hover:opacity-80"
-              style={customColor ? {
-                backgroundColor: customColor,
-                outline: "2.5px solid var(--color-primary)",
-                outlineOffset: "2px",
-                color: "transparent",
-              } : {
-                background: "linear-gradient(135deg, red, orange, yellow, green, blue, violet)",
-                outline: "2.5px solid transparent",
-                outlineOffset: "2px",
-                color: "transparent",
-              }}
-              onClick={() => colorInputRef.current?.click()}
-              aria-label="커스텀 색상 선택"
-            />
-            <input
-              ref={colorInputRef}
-              type="color"
-              value={customColor ?? "#808080"}
-              className="absolute opacity-0 w-px h-px"
-              onChange={(e) => {
-                const c = e.target.value;
-                setColor(c);
-                setCustomColor(c);
-                notifyDraftChange({ color: c, customColor: c });
-              }}
-            />
-          </div>
-          <div className="w-px h-5 bg-border shrink-0" />
-          {/* 팔레트 색상 */}
-          <div className="flex justify-end gap-3">
-            {blockColors.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  setColor(c);
-                  setCustomColor(undefined);
-                  notifyDraftChange({ color: c, clearCustomColor: true });
-                }}
-                className="w-7 h-7 rounded-full transition-transform hover:scale-110"
-                style={{
-                  backgroundColor: c,
-                  outline: c === color && !customColor ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
-                  outlineOffset: "2px",
-                }}
-                aria-label={c}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {isEditMode && blockColors && blockColors.length > 0 && <BlockStyleInput color={color} customColor={customColor} blockColors={blockColors} onColorChange={handleColorChange} />}
       <div className="flex gap-3">
         <Input
           label={t("input.startTime")}
@@ -222,53 +163,15 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       />
 
       {isEditMode && (
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-text">{t("input.imageLabel")}</span>
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-          {imageDataUrl ? (
-            <>
-              <div className="flex items-center gap-2">
-                <img src={imageDataUrl} alt={title} className="w-10 h-10 rounded object-cover shrink-0 border border-border" />
-                <Button type="button" variant="outline" onClick={handleImageRemove} className="flex-1 text-sm">
-                  {t("input.imageRemove")}
-                </Button>
-              </div>
-              <div className="flex flex-col gap-1.5 mt-1">
-                <span className="text-sm font-medium text-text">{t("input.imageAdjust")}</span>
-                {([
-                  { key: "imageOffsetX", left: "←", right: "→", value: imageOffsetX, setter: setImageOffsetX, min: -230, max: 230, step: 1 },
-                  { key: "imageOffsetY", left: "↑", right: "↓", value: imageOffsetY, setter: setImageOffsetY, min: -230, max: 230, step: 1 },
-                  { key: "imageScale",   left: "−", right: "+", value: imageScale,   setter: setImageScale,   min: 0.5,  max: 3,   step: 0.05 },
-                ] as const).map(({ key, left, right, value, setter, min, max, step }) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <span className="text-base text-text/50 w-5 text-center shrink-0">{left}</span>
-                    <input
-                      type="range"
-                      min={min}
-                      max={max}
-                      step={step}
-                      value={value}
-                      className="flex-1 accent-primary cursor-pointer"
-                      onChange={(e) => {
-                        const v = Number(e.target.value);
-                        setter(v);
-                        const nx = key === "imageOffsetX" ? v : imageOffsetX;
-                        const ny = key === "imageOffsetY" ? v : imageOffsetY;
-                        const ns = key === "imageScale"   ? v : imageScale;
-                        notifyImageTransform(nx, ny, ns);
-                      }}
-                    />
-                    <span className="text-base text-text/50 w-5 text-center shrink-0">{right}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full text-sm">
-              {t("input.imageUpload")}
-            </Button>
-          )}
-        </div>
+        <BlockImageInput
+          imageDataUrl={imageDataUrl}
+          imageOffsetX={imageOffsetX}
+          imageOffsetY={imageOffsetY}
+          imageScale={imageScale}
+          onImageLoad={handleImageLoad}
+          onImageRemove={handleImageRemove}
+          onImageTransform={handleImageTransform}
+        />
       )}
 
       {errorKey && <p className="text-sm text-red-500">{t(errorKey)}</p>}
@@ -276,9 +179,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       <Button type="submit" className="mt-1">
         {isEditMode ? t("input.update") : t("input.add")}
       </Button>
-      {isEditMode && (
-        <p className="text-xs text-text/40 text-center -mt-1">{t("input.updateHint")}</p>
-      )}
+      {isEditMode && <p className="text-xs text-text/40 text-center -mt-1">{t("input.updateHint")}</p>}
       {isEditMode && (
         <div className="flex gap-2">
           {onCancelEdit && (
