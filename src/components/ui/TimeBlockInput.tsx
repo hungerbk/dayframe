@@ -277,6 +277,9 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
         {isEditMode ? t("input.update") : t("input.add")}
       </Button>
       {isEditMode && (
+        <p className="text-xs text-text/40 text-center -mt-1">{t("input.updateHint")}</p>
+      )}
+      {isEditMode && (
         <div className="flex gap-2">
           {onCancelEdit && (
             <Button type="button" variant="outline" onClick={onCancelEdit} className="flex-1">

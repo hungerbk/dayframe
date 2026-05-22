@@ -15,7 +15,8 @@
     "imageLabel": "이미지 (선택)",
     "imageUpload": "이미지 추가",
     "imageRemove": "이미지 제거",
-    "imageAdjust": "이미지 조정"
+    "imageAdjust": "이미지 조정",
+    "updateHint": "변경사항은 수정 버튼을 눌러야 반영됩니다."
   },
   "controls": {
     "shapeDonut": "도넛 모양",

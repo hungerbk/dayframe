@@ -15,7 +15,8 @@
     "imageLabel": "Image (optional)",
     "imageUpload": "Add image",
     "imageRemove": "Remove image",
-    "imageAdjust": "Adjust image"
+    "imageAdjust": "Adjust image",
+    "updateHint": "Changes apply when you click Update."
   },
   "controls": {
     "shapeDonut": "Donut shape",
