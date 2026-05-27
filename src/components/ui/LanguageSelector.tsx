@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useDropdown } from "@/hooks/useDropdown";
 import { DropdownPanel, DropdownItem } from "./Dropdown";
+import Icon from "./Icon";
 
 const LANGUAGES = [
   { code: "ko", label: "한국어" },
@@ -28,9 +29,7 @@ export default function LanguageSelector() {
         <span>
           {t("language.label")}: {currentLang.label}
         </span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <Icon name="chevronDown" width="10" height="10" className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <DropdownPanel side="bottom" align="right">
@@ -38,9 +37,7 @@ export default function LanguageSelector() {
             <DropdownItem key={lang.code} onClick={() => handleSelect(lang.code)} active={lang.code === currentLang.code}>
               {lang.label}
               {lang.code === currentLang.code && (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <Icon name="check" width="13" height="13" />
               )}
             </DropdownItem>
           ))}

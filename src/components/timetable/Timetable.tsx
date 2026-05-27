@@ -14,24 +14,7 @@ import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleS
 import { usePngDownload } from "@/hooks/usePngDownload";
 import DownloadButton from "@/components/ui/DownloadButton";
 import { useTimetableStorage } from "@/hooks/useTimetableStorage";
-
-// 도넛 아이콘: 두꺼운 테두리의 원
-function DonutIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="4" />
-    </svg>
-  );
-}
-
-// 원형 아이콘: 꽉 찬 원
-function CircleIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
-      <circle cx="10" cy="10" r="9" fill="currentColor" />
-    </svg>
-  );
-}
+import Icon from "@/components/ui/Icon";
 
 export default function Timetable() {
   const { t } = useTranslation();
@@ -186,8 +169,8 @@ export default function Timetable() {
         <div className="flex gap-3 flex-wrap justify-center">
           <ToggleGroup
             options={[
-              { value: "donut", label: <DonutIcon />, ariaLabel: t("controls.shapeDonut") },
-              { value: "circle", label: <CircleIcon />, ariaLabel: t("controls.shapeCircle") },
+              { value: "donut", label: <Icon name="donut" width="20" height="20" />, ariaLabel: t("controls.shapeDonut") },
+              { value: "circle", label: <Icon name="circle" width="20" height="20" />, ariaLabel: t("controls.shapeCircle") },
             ]}
             value={shape}
             onChange={(v) => setShape(v)}
