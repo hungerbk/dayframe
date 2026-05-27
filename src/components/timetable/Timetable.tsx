@@ -9,6 +9,7 @@ import TimeBlockInput from "@/components/ui/TimeBlockInput";
 import ToggleGroup from "@/components/ui/ToggleGroup";
 import ThemeSelector from "@/components/ui/ThemeSelector";
 import { CX, CY, OUTER_R, INNER_R, COLOR_RING_STROKE, COLOR_CIRCLE_BG } from "./svgUtils";
+import { MAX_BLOCKS } from "@/constants/timetable";
 import { BlockArc } from "./BlockArc";
 import { HourTicks, HourLabels, SketchBackground, SketchHourTicks, SketchCircleStroke } from "./TimetableCircle";
 import { usePngDownload } from "@/hooks/usePngDownload";
@@ -201,6 +202,7 @@ export default function Timetable() {
           onCancelEdit={handleCancelEdit}
           onDraftChange={handleDraftChange}
           blockColors={selectedTheme.blockColors}
+          isMaxBlocks={blocks.length >= MAX_BLOCKS}
         />
         <div className="flex flex-col gap-4 mt-4">
           <div className="relative" ref={resetRef}>
