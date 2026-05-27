@@ -12,6 +12,7 @@
     "errorInvalidStart": "Invalid start time. (Please enter between 00:00 and 24:00.)",
     "errorInvalidEnd": "Invalid end time. (Please enter between 00:00 and 24:00.)",
     "errorSameTime": "Start and end time cannot be the same.",
+    "maxBlocksReached": "You can add up to {{max}} blocks. Please delete unused blocks.",
     "imageLabel": "Image (optional)",
     "imageUpload": "Add image",
     "imageRemove": "Remove image",

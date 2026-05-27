@@ -12,7 +12,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export default function Button({ children, variant = "primary", className, ...buttonProps }: Props) {
   return (
-    <button className={`py-2 rounded-lg font-semibold ${variantStyles[variant]} ${className ?? ""}`} {...buttonProps}>
+    <button className={`py-2 rounded-lg font-semibold ${variantStyles[variant]} ${className ?? ""} disabled:opacity-50 disabled:cursor-not-allowed`} {...buttonProps}>
       {children}
     </button>
   );

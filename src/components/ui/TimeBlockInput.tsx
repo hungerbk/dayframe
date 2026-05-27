@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { isValidTime, isEndAfterStart, formatTimeInput } from "@/utils";
+import { MAX_BLOCKS } from "@/constants/timetable";
 import Input from "./Input";
 import Button from "./Button";
 import BlockStyleInput from "./BlockStyleInput";
@@ -15,9 +16,10 @@ interface Props {
   onCancelEdit?: () => void;
   onDraftChange?: (draft: TimeBlock) => void;
   blockColors?: string[];
+  isMaxBlocks?: boolean;
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors, isMaxBlocks = false }: Props) {
   const { t } = useTranslation();
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
@@ -31,6 +33,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
   const isEditMode = editingBlock !== undefined;
+  const disabled = !isEditMode && isMaxBlocks;
 
   function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string }) {
     if (!editingBlock || !onDraftChange) return;
@@ -127,6 +130,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           type="text"
           placeholder="00:00"
           value={startTime}
+          disabled={disabled}
           onChange={(e) => {
             const val = formatTimeInput(e.target.value);
             setStartTime(val);
@@ -140,6 +144,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           type="text"
           placeholder="00:00"
           value={endTime}
+          disabled={disabled}
           onChange={(e) => {
             const val = formatTimeInput(e.target.value);
             setEndTime(val);
@@ -155,6 +160,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
         placeholder={t("input.titlePlaceholder")}
         value={title}
         maxLength={50}
+        disabled={disabled}
         onChange={(e) => {
           setTitle(e.target.value);
           setErrorKey(null);
@@ -176,8 +182,9 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       )}
 
       {errorKey && <p className="text-sm text-red-500">{t(errorKey)}</p>}
+      {disabled && <p className="text-sm text-text/60">{t("input.maxBlocksReached", { max: MAX_BLOCKS })}</p>}
 
-      <Button type="submit" className="mt-1">
+      <Button type="submit" disabled={disabled} className="mt-1">
         {isEditMode ? t("input.update") : t("input.add")}
       </Button>
       {isEditMode && <p className="text-xs text-text/40 text-center -mt-1">{t("input.updateHint")}</p>}
