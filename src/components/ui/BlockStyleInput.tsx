@@ -35,7 +35,7 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
         <input
           ref={colorInputRef}
           type="color"
-          value={customColor ?? "#808080"}
+          value={customColor ?? color}
           className="absolute opacity-0 w-px h-px"
           onChange={(e) => onColorChange(e.target.value, e.target.value)}
         />
