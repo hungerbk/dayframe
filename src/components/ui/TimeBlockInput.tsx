@@ -19,7 +19,7 @@ interface Props {
   isMaxBlocks?: boolean;
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors, isMaxBlocks }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors, isMaxBlocks = false }: Props) {
   const { t } = useTranslation();
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
@@ -33,7 +33,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
   const isEditMode = editingBlock !== undefined;
-  const disabled = !isEditMode && !!isMaxBlocks;
+  const disabled = !isEditMode && isMaxBlocks;
 
   function notifyDraftChange(overrides: { startTime?: string; endTime?: string; title?: string }) {
     if (!editingBlock || !onDraftChange) return;
