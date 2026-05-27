@@ -4,7 +4,7 @@ import pencil from "@/assets/icons/pencil.svg?react";
 import check from "@/assets/icons/check.svg?react";
 import donut from "@/assets/icons/donut.svg?react";
 import circle from "@/assets/icons/circle.svg?react";
-import type { ComponentType, SVGProps } from "react";
+import type { SVGProps } from "react";
 
 const iconList = {
   download,
@@ -16,21 +16,16 @@ const iconList = {
 } as const;
 
 type IconName = keyof typeof iconList;
-type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
+// name이 API 응답 등 외부 입력(string)으로 넓어지는 경우,
+// isIconName(name) 타입 가드를 추가하고 false면 null을 반환해야 한다.
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: IconName;
-  className?: string;
 }
 
-function Icon({ name, className, ...props }: IconProps) {
-  const SVGIcon: IconComponent | undefined = iconList[name];
-
-  if (!SVGIcon) {
-    return null;
-  }
-
-  return <SVGIcon className={className ?? undefined} {...props} />;
+function Icon({ name, ...props }: IconProps) {
+  const SVGIcon = iconList[name];
+  return <SVGIcon {...props} />;
 }
 
 export default Icon;
