@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { DownloadSize } from "@/hooks/usePngDownload";
 import { useDropdown } from "@/hooks/useDropdown";
 import { DropdownPanel, DropdownItem } from "./Dropdown";
+import Icon from "./Icon";
 
 interface Props {
   isDownloading: boolean;
@@ -34,14 +35,9 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         aria-label={t("download.ariaLabel")}
         aria-expanded={open}
         className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border bg-background text-text text-sm font-medium transition-colors disabled:opacity-50 ${isDownloading || disabled ? "pointer-events-none" : "hover:bg-border/30 active:opacity-80"}`}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
+        <Icon name="download" width="15" height="15" />
         <span className="inline-block w-10 text-center">PNG</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <Icon name="chevronDown" width="10" height="10" className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <DropdownPanel side="top" align="center" className="min-w-38">

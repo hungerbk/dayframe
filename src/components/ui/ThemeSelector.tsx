@@ -1,15 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { THEMES } from "@/constants/palettes";
 import type { Theme } from "@/constants/palettes";
-
-function PencilIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M4 20h4L18.5 9.5a2.828 2.828 0 0 0-4-4L4 16v4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M14.5 5.5l4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
+import Icon from "./Icon";
 
 interface Props {
   currentThemeId: string;
@@ -41,7 +33,7 @@ export default function ThemeSelector({ currentThemeId, onSelect, isSketch, onSk
         className={`group flex flex-col items-center gap-2 transition-colors ${isSketch ? "text-text" : "text-text/30 hover:text-text/60"}`}>
         <div
           className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isSketch ? "border-border bg-background scale-110 group-hover:bg-border/30" : "border-text/20"}`}>
-          <PencilIcon />
+          <Icon name="pencil" width="18" height="18" />
         </div>
         <span className={`text-xs font-medium transition-colors ${isSketch ? "group-hover:text-text/70" : ""}`}>{t("theme.sketch")}</span>
       </button>
