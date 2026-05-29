@@ -48,5 +48,11 @@
   "privacy": "This service stores your data only in your browser — never on a server. To protect your privacy, we recommend clearing completed schedules periodically.",
   "language": {
     "label": "Language"
+  },
+  "help": {
+    "ariaLabel": "About",
+    "title": "dayframe",
+    "description": "A tool to visualize your daily schedule as a circular timetable.\n\n• You can add up to 24 blocks.\n• Tap the edit button on a block to set a custom color or upload an image.\n• You don't have to fill in every hour.\n• Save as PNG and use it to decorate your diary, GoodNotes, or anywhere you like.",
+    "feedbackLink": "Share feedback →"
   }
 }
