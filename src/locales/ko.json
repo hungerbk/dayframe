@@ -28,8 +28,10 @@
     "displayMajor": "주요 시각",
     "displayNone": "없음",
     "reset": "초기화",
-    "blockReset": "내용 초기화",
-    "fullReset": "전체 초기화"
+    "blockReset": "블록 초기화",
+    "blockResetDesc": "추가한 블록을 모두 삭제합니다",
+    "fullReset": "전체 초기화",
+    "fullResetDesc": "블록과 테마 설정을 함께 초기화합니다"
   },
   "download": {
     "ariaLabel": "PNG 다운로드",
