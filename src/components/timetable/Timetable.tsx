@@ -87,6 +87,9 @@ export default function Timetable() {
     if (selectedBlockId === id) {
       handleCancelEdit();
     } else {
+      if (editingSnapshot) {
+        setBlocks((prev) => prev.map((b) => (b.id === editingSnapshot.id ? editingSnapshot : b)));
+      }
       const block = blocks.find((b) => b.id === id) ?? null;
       setSelectedBlockId(id);
       setEditingDraft(block);
