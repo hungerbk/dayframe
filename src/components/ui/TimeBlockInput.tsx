@@ -139,8 +139,10 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           }}
           onBlur={() => {
             const val = padTimeOnBlur(startTime);
-            setStartTime(val);
-            notifyDraftChange({ startTime: val });
+            if (val !== startTime) {
+              setStartTime(val);
+              notifyDraftChange({ startTime: val });
+            }
           }}
         />
         <Input
@@ -158,8 +160,10 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
           }}
           onBlur={() => {
             const val = padTimeOnBlur(endTime);
-            setEndTime(val);
-            notifyDraftChange({ endTime: val });
+            if (val !== endTime) {
+              setEndTime(val);
+              notifyDraftChange({ endTime: val });
+            }
           }}
         />
       </div>
