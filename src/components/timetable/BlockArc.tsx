@@ -15,9 +15,16 @@ interface BlockArcProps {
   isHovered?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  /**
+   * 렌더 레이어 (Timetable에서 두-패스 렌더링에 사용)
+   * - "shape": 아크·이미지만 — 1패스
+   * - "text" : 텍스트만      — 2패스 (모든 shape 위에 올라옴)
+   * - "full" : shape+text 묶음 — hover/selected처럼 맨 위에 통째로 렌더링할 때
+   */
+  layer?: "full" | "shape" | "text";
 }
 
-export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = false, isHovered = false, onMouseEnter, onMouseLeave }: BlockArcProps) {
+export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = false, isHovered = false, onMouseEnter, onMouseLeave, layer = "full" }: BlockArcProps) {
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
   // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
@@ -69,6 +76,33 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   const clipId = `clip-${block.id}`;
   const maskId = `mask-${block.id}`;
 
+  // "text" 레이어: 텍스트만 렌더링, 이벤트 없음
+  if (layer === "text") {
+    return (
+      <>
+        {titleLines.length > 0 && (
+          <text
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={FONT_SIZE}
+            fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
+            fontWeight={sketch ? 700 : 600}
+            stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
+            strokeWidth={3}
+            style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
+            {titleLines.map((line, i) => (
+              <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
+                {line}
+              </tspan>
+            ))}
+          </text>
+        )}
+      </>
+    );
+  }
+
+  const renderText = layer === "full";
+
   return (
     <g
       onClick={onClick}
@@ -116,7 +150,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         </g>
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
-      {titleLines.length > 0 && (
+      {renderText && titleLines.length > 0 && (
         <text
           textAnchor="middle"
           dominantBaseline="central"
