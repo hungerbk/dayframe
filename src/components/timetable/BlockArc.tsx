@@ -1,7 +1,22 @@
 import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { timeToAngle, polar, sectorPath, splitIntoLines, CX, CY, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, MAX_LINES, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
+import {
+  timeToAngle,
+  polar,
+  sectorPath,
+  splitIntoLines,
+  CX,
+  CY,
+  OUTER_R,
+  FONT_SIZE,
+  CHAR_WIDTH,
+  LINE_HEIGHT,
+  MAX_LINES,
+  COLOR_ARC_SEPARATOR,
+  COLOR_BLOCK_TEXT,
+  COLOR_SKETCH_BLOCK_TEXT,
+} from "./svgUtils";
 import { TITLE_MAX_LENGTH } from "@/constants/timetable";
 
 const generator = rough.generator();
@@ -38,7 +53,8 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   const effectiveOuterR = isSelected || isHovered ? OUTER_R + 12 : OUTER_R;
 
   // 텍스트 위치는 원래 반지름 기준으로 유지해 호버 시 텍스트가 튀지 않게 한다
-  const midTextR = (OUTER_R + innerR) / 2;
+  // 원형 모드(innerR=0)는 중심이 0이라 단순 중간값이 너무 안쪽이므로 바깥쪽으로 보정한다
+  const midTextR = innerR === 0 ? OUTER_R * 0.58 : (OUTER_R + innerR) / 2;
   const { x: tx, y: ty } = polar(midTextR, midAngle);
 
   // arcAngle >= π이면 호의 중앙부는 공간이 충분하므로 지름 전체를 사용한다.
