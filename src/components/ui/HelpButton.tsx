@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useDropdown } from "@/hooks/useDropdown";
+import { DropdownPanel } from "./Dropdown";
 
 const FEEDBACK_URL = "https://forms.gle/ouEKe39UYNK8mxe29";
 
@@ -18,21 +19,17 @@ export default function HelpButton() {
         ?
       </button>
       {open && (
-        <div className="absolute top-full mt-1 right-0 bg-white border border-border rounded-xl shadow-md z-20 w-64 overflow-hidden">
+        <DropdownPanel side="bottom" align="center" className="w-64">
           <div className="px-4 pt-4 pb-3">
             <p className="text-sm font-semibold text-text mb-2">{t("help.title")}</p>
             <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">{t("help.description")}</p>
           </div>
           <div className="border-t border-border px-4 py-3">
-            <a
-              href={FEEDBACK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline">
+            <a href={FEEDBACK_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
               {t("help.feedbackLink")}
             </a>
           </div>
-        </div>
+        </DropdownPanel>
       )}
     </div>
   );
