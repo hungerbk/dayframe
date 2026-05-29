@@ -216,20 +216,20 @@ export default function Timetable() {
                     blockReset();
                     setResetOpen(false);
                   }}>
-                  <div className="flex flex-col gap-0.5">
+                  <span className="flex flex-col gap-0.5">
                     <span>{t("controls.blockReset")}</span>
                     <span className="text-xs font-normal text-text/50">{t("controls.blockResetDesc")}</span>
-                  </div>
+                  </span>
                 </DropdownItem>
                 <DropdownItem
                   onClick={() => {
                     fullReset();
                     setResetOpen(false);
                   }}>
-                  <div className="flex flex-col gap-0.5">
+                  <span className="flex flex-col gap-0.5">
                     <span>{t("controls.fullReset")}</span>
                     <span className="text-xs font-normal text-text/50">{t("controls.fullResetDesc")}</span>
-                  </div>
+                  </span>
                 </DropdownItem>
               </DropdownPanel>
             )}
