@@ -20,6 +20,11 @@ export default function BlockImageInput({ title, imageDataUrl, imageOffsetX, ima
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 1024 * 1024) {
+      alert(t("input.imageSizeError"));
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => onImageLoad(reader.result as string);
     reader.readAsDataURL(file);

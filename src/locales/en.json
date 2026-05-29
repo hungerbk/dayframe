@@ -18,7 +18,8 @@
     "imageRemove": "Remove image",
     "imageAdjust": "Adjust image",
     "updateHint": "Changes apply when you click Update.",
-    "customColorLabel": "Pick custom color"
+    "customColorLabel": "Pick custom color",
+    "imageSizeError": "Image must be 1 MB or smaller."
   },
   "controls": {
     "shapeDonut": "Donut shape",
