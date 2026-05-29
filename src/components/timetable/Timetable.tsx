@@ -23,6 +23,7 @@ export default function Timetable() {
   const { isDownloading, targetRef, download } = usePngDownload(selectedTheme.ui.page, isSketch);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<TimeBlock | null>(null);
+  const [editingSnapshot, setEditingSnapshot] = useState<TimeBlock | null>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const resetRef = useRef<HTMLDivElement>(null);
@@ -48,13 +49,21 @@ export default function Timetable() {
       prev.map((block, i) => ({
         ...block,
         // customColor가 있는 블록은 테마 변경 영향을 받지 않는다
-        color: block.customColor ?? theme.blockColors[i % theme.blockColors.length],
+        // paletteIndex가 있으면 해당 팔레트 위치 색상, 없으면 블록 순서 기반 색상
+        color: block.customColor ?? theme.blockColors[(block.paletteIndex ?? i) % theme.blockColors.length],
       })),
     );
     if (editingDraft) {
       const idx = blocks.findIndex((b) => b.id === editingDraft.id);
       if (idx !== -1) {
-        setEditingDraft({ ...editingDraft, color: editingDraft.customColor ?? theme.blockColors[idx % theme.blockColors.length] });
+        const paletteIdx = editingDraft.paletteIndex ?? idx;
+        setEditingDraft({ ...editingDraft, color: editingDraft.customColor ?? theme.blockColors[paletteIdx % theme.blockColors.length] });
+        // 편집 중 테마가 바뀌면 스냅샷도 새 테마 기준으로 갱신해야 취소 시 올바른 색상으로 돌아온다
+        setEditingSnapshot((prev) => {
+          if (!prev) return null;
+          const snapshotPaletteIdx = prev.paletteIndex ?? idx;
+          return { ...prev, color: prev.customColor ?? theme.blockColors[snapshotPaletteIdx % theme.blockColors.length] };
+        });
       }
     }
   }
@@ -68,13 +77,20 @@ export default function Timetable() {
     setBlocks((prev) => [...prev, { ...block, color }]);
   }
 
+  function clearEditState() {
+    setSelectedBlockId(null);
+    setEditingDraft(null);
+    setEditingSnapshot(null);
+  }
+
   function handleBlockClick(id: string) {
     if (selectedBlockId === id) {
-      setSelectedBlockId(null);
-      setEditingDraft(null);
+      handleCancelEdit();
     } else {
+      const block = blocks.find((b) => b.id === id) ?? null;
       setSelectedBlockId(id);
-      setEditingDraft(blocks.find((b) => b.id === id) ?? null);
+      setEditingDraft(block);
+      setEditingSnapshot(block);
     }
   }
 
@@ -83,19 +99,25 @@ export default function Timetable() {
   }
 
   function handleCancelEdit() {
-    setSelectedBlockId(null);
-    setEditingDraft(null);
+    if (editingSnapshot) {
+      setBlocks((prev) => prev.map((b) => (b.id === editingSnapshot.id ? editingSnapshot : b)));
+    }
+    clearEditState();
+  }
+
+  function handleColorCommit(blockId: string, color: string, customColor: string | undefined, paletteIndex?: number) {
+    setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, color, customColor, paletteIndex } : b)));
   }
 
   function handleUpdate(block: TimeBlock) {
     setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
-    handleCancelEdit();
+    clearEditState();
   }
 
   function handleDelete() {
     if (!selectedBlockId) return;
     setBlocks((prev) => prev.filter((b) => b.id !== selectedBlockId));
-    handleCancelEdit();
+    clearEditState();
   }
 
   const editingBlock = blocks.find((b) => b.id === selectedBlockId);
@@ -201,6 +223,7 @@ export default function Timetable() {
           onDelete={handleDelete}
           onCancelEdit={handleCancelEdit}
           onDraftChange={handleDraftChange}
+          onColorCommit={handleColorCommit}
           blockColors={selectedTheme.blockColors}
           isMaxBlocks={blocks.length >= MAX_BLOCKS}
         />

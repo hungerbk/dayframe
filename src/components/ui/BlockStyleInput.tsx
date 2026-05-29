@@ -5,12 +5,15 @@ interface Props {
   color: string;
   customColor?: string;
   blockColors: string[];
-  onColorChange: (color: string, customColor: string | undefined) => void;
+  onColorChange: (color: string, customColor: string | undefined, paletteIndex?: number) => void;
 }
 
 export default function BlockStyleInput({ color, customColor, blockColors, onColorChange }: Props) {
   const { t } = useTranslation();
   const colorInputRef = useRef<HTMLInputElement>(null);
+
+  // customColor가 팔레트 색이 아닌 경우에만 커스텀 색상으로 간주
+  const isCustomActive = !!customColor && !blockColors.includes(customColor);
 
   return (
     <div className="flex items-center gap-3">
@@ -18,7 +21,7 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
         <button
           type="button"
           className="h-7 w-full rounded transition-opacity hover:opacity-80"
-          style={customColor ? {
+          style={isCustomActive ? {
             backgroundColor: customColor,
             outline: "2.5px solid var(--color-primary)",
             outlineOffset: "2px",
@@ -37,7 +40,7 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
           type="color"
           value={customColor ?? color}
           className="absolute opacity-0 w-px h-px"
-          onChange={(e) => onColorChange(e.target.value, e.target.value)}
+          onChange={(e) => onColorChange(e.target.value, e.target.value, undefined)}
         />
       </div>
       <div className="w-px h-5 bg-border shrink-0" />
@@ -46,11 +49,11 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
           <button
             key={c}
             type="button"
-            onClick={() => onColorChange(c, undefined)}
+            onClick={() => onColorChange(c, undefined, blockColors.indexOf(c))}
             className="w-7 h-7 rounded-full transition-transform hover:scale-110"
             style={{
               backgroundColor: c,
-              outline: c === color && !customColor ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
+              outline: c === color ? "2.5px solid var(--color-primary)" : "2.5px solid transparent",
               outlineOffset: "2px",
             }}
             aria-label={c}
