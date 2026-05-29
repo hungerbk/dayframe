@@ -131,10 +131,23 @@ export default function Timetable() {
   const hoveredBlock = hoveredBlockId && hoveredBlockId !== selectedBlockId ? (blocksToRender.find((b) => b.id === hoveredBlockId) ?? null) : null;
   const selectedBlock = blocksToRender.find((b) => b.id === selectedBlockId) ?? null;
 
+  const shapeToggle = (
+    <ToggleGroup
+      options={[
+        { value: "donut", label: <Icon name="donut" width="20" height="20" />, ariaLabel: t("controls.shapeDonut") },
+        { value: "circle", label: <Icon name="circle" width="20" height="20" />, ariaLabel: t("controls.shapeCircle") },
+      ]}
+      value={shape}
+      onChange={(v) => setShape(v)}
+    />
+  );
+
   return (
-    <div className="w-full flex flex-col lg:flex-row gap-6 lg:gap-16 p-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
+    <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 pt-20 px-4 pb-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
-      <div className="flex flex-col items-center gap-4 w-full lg:flex-1 min-w-0">
+      <div className="flex flex-col items-center gap-2 lg:gap-4 w-full lg:flex-1 min-w-0">
+        {/* 모양 선택 (모바일): display:none이 아닌 쪽이 항상 하나뿐이므로 스크린 리더는 중복 없이 읽는다 */}
+        <div className="lg:hidden w-full flex justify-center mt-4">{shapeToggle}</div>
         <div ref={targetRef} className="w-full aspect-square max-w-[75vh]">
           <svg viewBox="0 0 600 600" width="100%" height="100%">
             {isSketch ? <SketchBackground /> : <circle cx={CX} cy={CY} r={OUTER_R} fill={COLOR_CIRCLE_BG} stroke={COLOR_RING_STROKE} strokeWidth={1} data-outer-circle />}
@@ -163,13 +176,7 @@ export default function Timetable() {
 
             {/* text 패스: 모든 shape 위에 텍스트를 렌더링해 넘침이 가려지지 않게 한다 */}
             {otherBlocks.map((block) => (
-              <BlockArc
-                key={`${block.id}-text`}
-                block={block}
-                innerR={innerR}
-                sketch={isSketch}
-                layer="text"
-              />
+              <BlockArc key={`${block.id}-text`} block={block} innerR={innerR} sketch={isSketch} layer="text" />
             ))}
 
             {/* 호버/선택된 블록은 흰 원 위에 렌더링해 안쪽으로도 확장되게 한다 */}
@@ -205,15 +212,9 @@ export default function Timetable() {
         </div>
 
         {/* 컨트롤 */}
-        <div className="flex gap-3 flex-wrap justify-center">
-          <ToggleGroup
-            options={[
-              { value: "donut", label: <Icon name="donut" width="20" height="20" />, ariaLabel: t("controls.shapeDonut") },
-              { value: "circle", label: <Icon name="circle" width="20" height="20" />, ariaLabel: t("controls.shapeCircle") },
-            ]}
-            value={shape}
-            onChange={(v) => setShape(v)}
-          />
+        <div className="flex gap-3 flex-wrap justify-center mt-2 lg:mt-0">
+          {/* 모양 선택 (데스크톱) */}
+          <div className="hidden lg:block">{shapeToggle}</div>
           <ToggleGroup
             options={[
               { value: "all", label: t("controls.displayAll") },
@@ -229,7 +230,7 @@ export default function Timetable() {
       </div>
 
       {/* 오른쪽: 테마 선택 + 입력 폼 */}
-      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
+      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-6 lg:gap-4">
         <ThemeSelector currentThemeId={selectedTheme.id} onSelect={handleThemeSelect} isSketch={isSketch} onSketchToggle={() => setIsSketch((v) => !v)} />
         <TimeBlockInput
           key={selectedBlockId ? `${selectedBlockId}-${selectedTheme.id}` : "new"}

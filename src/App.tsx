@@ -5,7 +5,7 @@ import HelpButton from "@/components/ui/HelpButton";
 function App() {
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-page transition-colors duration-300">
-      <div className="absolute top-4 right-4 flex items-center gap-1">
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between lg:justify-end gap-1 p-4">
         <HelpButton />
         <LanguageSelector />
       </div>

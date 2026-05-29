@@ -19,7 +19,7 @@ export default function HelpButton() {
         ?
       </button>
       {open && (
-        <DropdownPanel side="bottom" align="center" className="w-64">
+        <DropdownPanel side="bottom" align="left" className="w-64 lg:left-auto lg:right-0">
           <div className="px-4 pt-4 pb-3">
             <p className="text-sm font-semibold text-text mb-2">{t("help.title")}</p>
             <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">{t("help.description")}</p>

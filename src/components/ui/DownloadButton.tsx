@@ -34,9 +34,9 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         disabled={isDownloading || disabled}
         aria-label={t("download.ariaLabel")}
         aria-expanded={open}
-        className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border bg-background text-text text-sm font-medium transition-colors disabled:opacity-50 ${isDownloading || disabled ? "pointer-events-none" : "hover:bg-border/30 active:opacity-80"}`}>
+        className={`flex items-center h-full gap-1.5 px-3 rounded-lg border border-border bg-background text-text text-sm font-medium transition-colors disabled:opacity-50 ${isDownloading || disabled ? "pointer-events-none" : "hover:bg-border/30 active:opacity-80"}`}>
         <Icon name="download" width="15" height="15" />
-        <span className="inline-block w-10 text-center">PNG</span>
+        <span className="hidden lg:inline-block w-10 text-center">PNG</span>
         <Icon name="chevronDown" width="10" height="10" className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
