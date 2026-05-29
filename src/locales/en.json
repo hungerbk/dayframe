@@ -29,7 +29,9 @@
     "displayNone": "None",
     "reset": "Reset",
     "blockReset": "Reset blocks",
-    "fullReset": "Full reset"
+    "blockResetDesc": "Removes all added blocks",
+    "fullReset": "Full reset",
+    "fullResetDesc": "Also resets theme and style settings"
   },
   "download": {
     "ariaLabel": "Download PNG",
