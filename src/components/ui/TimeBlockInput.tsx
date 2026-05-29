@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
 import { isValidTime, isEndAfterStart, formatTimeInput, padTimeOnBlur } from "@/utils";
-import { MAX_BLOCKS } from "@/constants/timetable";
+import { MAX_BLOCKS, TITLE_MAX_LENGTH } from "@/constants/timetable";
 import Input from "./Input";
 import Button from "./Button";
 import BlockStyleInput from "./BlockStyleInput";
@@ -188,9 +188,9 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       <Input
         label={t("input.titleLabel")}
         type="text"
-        placeholder={t("input.titlePlaceholder")}
+        placeholder={t("input.titlePlaceholder", { max: TITLE_MAX_LENGTH })}
         value={title}
-        maxLength={50}
+        maxLength={TITLE_MAX_LENGTH}
         disabled={disabled}
         onChange={(e) => {
           setTitle(e.target.value);

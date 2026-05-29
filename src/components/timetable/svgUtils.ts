@@ -94,7 +94,7 @@ export function sectorPath(innerR: number, outerR: number, startAngle: number, e
   return [`M ${f(sO.x)} ${f(sO.y)}`, `A ${outerR} ${outerR} 0 ${large} 1 ${f(eO.x)} ${f(eO.y)}`, `L ${f(eI.x)} ${f(eI.y)}`, `A ${innerR} ${innerR} 0 ${large} 0 ${f(sI.x)} ${f(sI.y)}`, "Z"].join(" ");
 }
 
-const MAX_LINES = 3; // 도넛 반지름 공간(125px)을 고려한 최대 줄 수
+export const MAX_LINES = 3; // 도넛 반지름 공간(125px)을 고려한 최대 줄 수
 
 /**
  * 텍스트를 최대 글자 수 기준으로 줄 배열로 나눈다.

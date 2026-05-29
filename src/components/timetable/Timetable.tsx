@@ -141,12 +141,14 @@ export default function Timetable() {
 
             {isSketch ? <SketchHourTicks /> : <HourTicks />}
 
+            {/* shape 패스: 아크·이미지만 렌더링 */}
             {otherBlocks.map((block) => (
               <BlockArc
-                key={block.id}
+                key={`${block.id}-shape`}
                 block={block}
                 innerR={innerR}
                 sketch={isSketch}
+                layer="shape"
                 onClick={() => handleBlockClick(block.id)}
                 isSelected={false}
                 isHovered={false}
@@ -158,6 +160,17 @@ export default function Timetable() {
             {/* 도넛 모드: 블록이 구멍 안쪽을 침범하지 않도록 흰 원으로 덮는다 */}
             {innerR > 0 && <circle cx={CX} cy={CY} r={innerR} fill="var(--color-page)" data-bg-fill stroke={isSketch ? "none" : COLOR_RING_STROKE} strokeWidth={1} />}
             {innerR > 0 && isSketch && <SketchCircleStroke r={innerR} />}
+
+            {/* text 패스: 모든 shape 위에 텍스트를 렌더링해 넘침이 가려지지 않게 한다 */}
+            {otherBlocks.map((block) => (
+              <BlockArc
+                key={`${block.id}-text`}
+                block={block}
+                innerR={innerR}
+                sketch={isSketch}
+                layer="text"
+              />
+            ))}
 
             {/* 호버/선택된 블록은 흰 원 위에 렌더링해 안쪽으로도 확장되게 한다 */}
             {hoveredBlock && (

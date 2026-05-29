@@ -3,7 +3,7 @@
     "startTime": "Start time",
     "endTime": "End time",
     "titleLabel": "Title (optional)",
-    "titlePlaceholder": "e.g. Lunch break (max 50 chars)",
+    "titlePlaceholder": "e.g. Lunch break (max {{max}} chars)",
     "add": "Add",
     "update": "Update",
     "cancel": "Cancel",
