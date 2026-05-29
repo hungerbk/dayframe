@@ -92,30 +92,25 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   const clipId = `clip-${block.id}`;
   const maskId = `mask-${block.id}`;
 
-  // "text" 레이어: 텍스트만 렌더링, 이벤트 없음
-  if (layer === "text") {
-    return (
-      <>
-        {titleLines.length > 0 && (
-          <text
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={FONT_SIZE}
-            fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
-            fontWeight={sketch ? 700 : 600}
-            stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
-            strokeWidth={3}
-            style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
-            {titleLines.map((line, i) => (
-              <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
-                {line}
-              </tspan>
-            ))}
-          </text>
-        )}
-      </>
-    );
-  }
+  const textEl = titleLines.length > 0 ? (
+    <text
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={FONT_SIZE}
+      fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
+      fontWeight={sketch ? 700 : 600}
+      stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
+      strokeWidth={3}
+      style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
+      {titleLines.map((line, i) => (
+        <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  ) : null;
+
+  if (layer === "text") return <>{textEl}</>;
 
   const renderText = layer === "full";
 
@@ -166,23 +161,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
         </g>
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
-      {renderText && titleLines.length > 0 && (
-        <text
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={FONT_SIZE}
-          fill={sketch ? COLOR_SKETCH_BLOCK_TEXT : COLOR_BLOCK_TEXT}
-          fontWeight={sketch ? 700 : 600}
-          stroke={sketch ? COLOR_BLOCK_TEXT : block.color}
-          strokeWidth={3}
-          style={{ pointerEvents: "none", userSelect: "none", paintOrder: "stroke fill" }}>
-          {titleLines.map((line, i) => (
-            <tspan key={i} x={tx} y={ty - textBlockHalfHeight + i * LINE_HEIGHT}>
-              {line}
-            </tspan>
-          ))}
-        </text>
-      )}
+      {renderText && textEl}
     </g>
   );
 }
