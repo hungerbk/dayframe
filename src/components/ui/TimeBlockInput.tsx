@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
-import { isValidTime, isEndAfterStart, formatTimeInput } from "@/utils";
+import { isValidTime, isEndAfterStart, formatTimeInput, padTimeOnBlur } from "@/utils";
 import { MAX_BLOCKS } from "@/constants/timetable";
 import Input from "./Input";
 import Button from "./Button";
@@ -137,6 +137,13 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
             setErrorKey(null);
             notifyDraftChange({ startTime: val });
           }}
+          onBlur={() => {
+            const val = padTimeOnBlur(startTime);
+            if (val !== startTime) {
+              setStartTime(val);
+              notifyDraftChange({ startTime: val });
+            }
+          }}
         />
         <Input
           label={t("input.endTime")}
@@ -150,6 +157,13 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
             setEndTime(val);
             setErrorKey(null);
             notifyDraftChange({ endTime: val });
+          }}
+          onBlur={() => {
+            const val = padTimeOnBlur(endTime);
+            if (val !== endTime) {
+              setEndTime(val);
+              notifyDraftChange({ endTime: val });
+            }
           }}
         />
       </div>
