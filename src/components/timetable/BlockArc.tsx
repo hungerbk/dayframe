@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import rough from "roughjs";
 import type { TimeBlock } from "@/types";
-import { timeToAngle, polar, sectorPath, splitIntoLines, CX, CY, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
+import { timeToAngle, polar, sectorPath, splitIntoLines, CX, CY, OUTER_R, FONT_SIZE, CHAR_WIDTH, LINE_HEIGHT, MAX_LINES, COLOR_ARC_SEPARATOR, COLOR_BLOCK_TEXT, COLOR_SKETCH_BLOCK_TEXT } from "./svgUtils";
+import { TITLE_MAX_LENGTH } from "@/constants/timetable";
 
 const generator = rough.generator();
 
@@ -33,13 +34,12 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   const midTextR = (OUTER_R + innerR) / 2;
   const { x: tx, y: ty } = polar(midTextR, midAngle);
 
-  // 텍스트 표시 최소 호 각도: π/24 ≈ 약 30분에 해당하는 각도
-  const minAngleForText = Math.PI / 24;
   // arcAngle >= π이면 호의 중앙부는 공간이 충분하므로 지름 전체를 사용한다.
   // 작은 호에서는 현(chord) 길이로 가로 여백을 추정한다.
+  // 최소 7글자/줄을 보장해 20자 입력이 3줄 내에 합리적으로 나뉘도록 한다.
   const chordWidth = arcAngle >= Math.PI ? 2 * midTextR : 2 * Math.sin(arcAngle / 2) * midTextR;
-  const maxCharsPerLine = Math.floor(chordWidth / CHAR_WIDTH);
-  const showText = block.title && arcAngle >= minAngleForText && maxCharsPerLine >= 2;
+  const maxCharsPerLine = Math.max(Math.floor(chordWidth / CHAR_WIDTH), Math.ceil(TITLE_MAX_LENGTH / MAX_LINES));
+  const showText = !!block.title;
 
   const titleLines = showText ? splitIntoLines(block.title!, maxCharsPerLine) : [];
 
@@ -75,6 +75,21 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
+      <defs>
+        {block.imageDataUrl && (
+          <clipPath id={clipId}>
+            <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
+          </clipPath>
+        )}
+        {/* 스케치 모드: rough.js 경로를 마스크로 사용해 이미지가 해칭 선 위에만 보이게 한다 */}
+        {block.imageDataUrl && sketch && (
+          <mask id={maskId}>
+            {roughPaths.map((p, i) => (
+              <path key={i} d={p.d} stroke="white" strokeWidth={(p.strokeWidth ?? 1) * 4} fill={p.fill && p.fill !== "none" ? "white" : "none"} />
+            ))}
+          </mask>
+        )}
+      </defs>
       {sketch ? (
         <>
           {/* 클릭/호버 영역을 sector 전체로 확장하는 투명 패스 */}
@@ -86,34 +101,19 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
       ) : (
         <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill={block.color} stroke={COLOR_ARC_SEPARATOR} strokeWidth={1} opacity={0.92} />
       )}
+      {/* clipPath는 바깥 g에, transform은 안쪽 image에 분리해야 클립 경계가 고정된 채로 이미지 내용만 이동/확대된다 */}
       {block.imageDataUrl && (
-        <>
-          <defs>
-            <clipPath id={clipId}>
-              <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} />
-            </clipPath>
-            {/* 스케치 모드: rough.js 경로를 마스크로 사용해 이미지가 해칭 선 위에만 보이게 한다 */}
-            {sketch && (
-              <mask id={maskId}>
-                {roughPaths.map((p, i) => (
-                  <path key={i} d={p.d} stroke="white" strokeWidth={(p.strokeWidth ?? 1) * 4} fill={p.fill && p.fill !== "none" ? "white" : "none"} />
-                ))}
-              </mask>
-            )}
-          </defs>
-          {/* clipPath는 바깥 g에, transform은 안쪽 image에 분리해야 클립 경계가 고정된 채로 이미지 내용만 이동/확대된다 */}
-          <g clipPath={`url(#${clipId})`} mask={sketch ? `url(#${maskId})` : undefined} style={{ pointerEvents: "none" }}>
-            <image
-              href={block.imageDataUrl}
-              x={CX - OUTER_R}
-              y={CY - OUTER_R}
-              width={OUTER_R * 2}
-              height={OUTER_R * 2}
-              preserveAspectRatio="xMidYMid slice"
-              transform={`translate(${CX + (block.imageOffsetX ?? 0)}, ${CY + (block.imageOffsetY ?? 0)}) scale(${block.imageScale ?? 1}) translate(${-CX}, ${-CY})`}
-            />
-          </g>
-        </>
+        <g clipPath={`url(#${clipId})`} mask={sketch ? `url(#${maskId})` : undefined} style={{ pointerEvents: "none" }}>
+          <image
+            href={block.imageDataUrl}
+            x={CX - OUTER_R}
+            y={CY - OUTER_R}
+            width={OUTER_R * 2}
+            height={OUTER_R * 2}
+            preserveAspectRatio="xMidYMid slice"
+            transform={`translate(${CX + (block.imageOffsetX ?? 0)}, ${CY + (block.imageOffsetY ?? 0)}) scale(${block.imageScale ?? 1}) translate(${-CX}, ${-CY})`}
+          />
+        </g>
       )}
       {isSelected && <path d={sectorPath(innerR, effectiveOuterR, startAngle, endAngle)} fill="none" stroke={sketch ? undefined : "white"} strokeWidth={2} style={{ pointerEvents: "none" }} />}
       {titleLines.length > 0 && (
