@@ -144,7 +144,7 @@ export default function Timetable() {
             {/* shape 패스: 아크·이미지만 렌더링 */}
             {otherBlocks.map((block) => (
               <BlockArc
-                key={block.id}
+                key={`${block.id}-shape`}
                 block={block}
                 innerR={innerR}
                 sketch={isSketch}
@@ -164,7 +164,7 @@ export default function Timetable() {
             {/* text 패스: 모든 shape 위에 텍스트를 렌더링해 넘침이 가려지지 않게 한다 */}
             {otherBlocks.map((block) => (
               <BlockArc
-                key={block.id}
+                key={`${block.id}-text`}
                 block={block}
                 innerR={innerR}
                 sketch={isSketch}
