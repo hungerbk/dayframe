@@ -15,17 +15,19 @@ interface Props {
   onDelete?: () => void;
   onCancelEdit?: () => void;
   onDraftChange?: (draft: TimeBlock) => void;
+  onColorCommit?: (blockId: string, color: string, customColor: string | undefined, paletteIndex?: number) => void;
   blockColors?: string[];
   isMaxBlocks?: boolean;
 }
 
-export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, blockColors, isMaxBlocks = false }: Props) {
+export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete, onCancelEdit, onDraftChange, onColorCommit, blockColors, isMaxBlocks = false }: Props) {
   const { t } = useTranslation();
   const [startTime, setStartTime] = useState(editingBlock?.startTime ?? "");
   const [endTime, setEndTime] = useState(editingBlock?.endTime ?? "");
   const [title, setTitle] = useState(editingBlock?.title ?? "");
   const [color, setColor] = useState(editingBlock?.color ?? "");
   const [customColor, setCustomColor] = useState(editingBlock?.customColor);
+  const [paletteIndex, setPaletteIndex] = useState(editingBlock?.paletteIndex);
   const [imageDataUrl, setImageDataUrl] = useState<string | undefined>(editingBlock?.imageDataUrl);
   const [imageOffsetX, setImageOffsetX] = useState(editingBlock?.imageOffsetX ?? 0);
   const [imageOffsetY, setImageOffsetY] = useState(editingBlock?.imageOffsetY ?? 0);
@@ -43,15 +45,30 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       title: overrides.title ?? title,
     };
     if (!isValidTime(next.startTime) || !isValidTime(next.endTime) || !isEndAfterStart(next.startTime, next.endTime)) return;
-    onDraftChange({ ...editingBlock, ...next, color, customColor, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+    onDraftChange({ ...editingBlock, ...next, color, customColor, paletteIndex, title: next.title.trim() || undefined, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
   }
 
-  function handleColorChange(newColor: string, newCustomColor: string | undefined) {
+  function handleColorChange(newColor: string, newCustomColor: string | undefined, newPaletteIndex?: number) {
     setColor(newColor);
     setCustomColor(newCustomColor);
-    if (!editingBlock || !onDraftChange) return;
-    if (!isValidTime(startTime) || !isValidTime(endTime) || !isEndAfterStart(startTime, endTime)) return;
-    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color: newColor, customColor: newCustomColor, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+    setPaletteIndex(newPaletteIndex);
+    if (!editingBlock) return;
+    if (onColorCommit) onColorCommit(editingBlock.id, newColor, newCustomColor, newPaletteIndex);
+    if (!onDraftChange) return;
+    const hasValidTime = isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime);
+    onDraftChange({
+      ...editingBlock,
+      startTime: hasValidTime ? startTime : editingBlock.startTime,
+      endTime: hasValidTime ? endTime : editingBlock.endTime,
+      title: hasValidTime ? (title.trim() || undefined) : editingBlock.title,
+      color: newColor,
+      customColor: newCustomColor,
+      paletteIndex: newPaletteIndex,
+      imageDataUrl,
+      imageOffsetX,
+      imageOffsetY,
+      imageScale,
+    });
   }
 
   function handleImageLoad(dataUrl: string) {
@@ -104,7 +121,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     }
 
     if (isEditMode && editingBlock && onUpdate) {
-      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+      onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, paletteIndex, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
     } else {
       onAdd({
         id: crypto.randomUUID(),
