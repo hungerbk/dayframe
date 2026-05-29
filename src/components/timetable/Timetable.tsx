@@ -143,7 +143,7 @@ export default function Timetable() {
   );
 
   return (
-    <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 pt-17 px-4 pb-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
+    <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 pt-20 px-4 pb-4 lg:p-8 lg:items-center max-w-5xl mx-auto">
       {/* 왼쪽: 시계 + 컨트롤 */}
       <div className="flex flex-col items-center gap-2 lg:gap-4 w-full lg:flex-1 min-w-0">
         {/* 모양 선택 (모바일): display:none이 아닌 쪽이 항상 하나뿐이므로 스크린 리더는 중복 없이 읽는다 */}
