@@ -1,4 +1,3 @@
-import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDropdown } from "@/hooks/useDropdown";
 import { DropdownPanel } from "./Dropdown";
@@ -8,17 +7,9 @@ const FEEDBACK_URL = "https://forms.gle/ouEKe39UYNK8mxe29";
 export default function HelpButton() {
   const { t } = useTranslation();
   const { open, toggle, anchorProps } = useDropdown();
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [align, setAlign] = useState<"left" | "right">("right");
-
-  useLayoutEffect(() => {
-    if (!open || !wrapperRef.current) return;
-    const { left } = wrapperRef.current.getBoundingClientRect();
-    setAlign(left < window.innerWidth / 2 ? "left" : "right");
-  }, [open]);
 
   return (
-    <div ref={wrapperRef} className="relative" {...anchorProps}>
+    <div className="relative" {...anchorProps}>
       <button
         type="button"
         onClick={toggle}
@@ -28,7 +19,7 @@ export default function HelpButton() {
         ?
       </button>
       {open && (
-        <DropdownPanel side="bottom" align={align} className="w-64">
+        <DropdownPanel side="bottom" align="left" className="w-64 lg:left-auto lg:right-0">
           <div className="px-4 pt-4 pb-3">
             <p className="text-sm font-semibold text-text mb-2">{t("help.title")}</p>
             <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">{t("help.description")}</p>
