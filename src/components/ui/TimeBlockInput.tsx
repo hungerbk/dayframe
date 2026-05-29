@@ -55,8 +55,20 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
     if (!editingBlock) return;
     if (onColorCommit) onColorCommit(editingBlock.id, newColor, newCustomColor, newPaletteIndex);
     if (!onDraftChange) return;
-    if (!isValidTime(startTime) || !isValidTime(endTime) || !isEndAfterStart(startTime, endTime)) return;
-    onDraftChange({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color: newColor, customColor: newCustomColor, paletteIndex: newPaletteIndex, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
+    const hasValidTime = isValidTime(startTime) && isValidTime(endTime) && isEndAfterStart(startTime, endTime);
+    onDraftChange({
+      ...editingBlock,
+      startTime: hasValidTime ? startTime : editingBlock.startTime,
+      endTime: hasValidTime ? endTime : editingBlock.endTime,
+      title: hasValidTime ? (title.trim() || undefined) : editingBlock.title,
+      color: newColor,
+      customColor: newCustomColor,
+      paletteIndex: newPaletteIndex,
+      imageDataUrl,
+      imageOffsetX,
+      imageOffsetY,
+      imageScale,
+    });
   }
 
   function handleImageLoad(dataUrl: string) {
