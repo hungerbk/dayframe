@@ -3,7 +3,7 @@
     "startTime": "시작 시간",
     "endTime": "종료 시간",
     "titleLabel": "제목 (선택)",
-    "titlePlaceholder": "예: 점심시간 (최대 50자)",
+    "titlePlaceholder": "예: 점심시간 (최대 {{max}}자)",
     "add": "추가",
     "update": "수정",
     "cancel": "취소",
