@@ -72,7 +72,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   // rough.js path를 useMemo로 캐싱해 re-render 시 스케치 선이 흔들리지 않게 한다
   // sketch=false일 때는 계산 자체를 건너뛴다
   const roughPaths = useMemo(() => {
-    if (!sketch) return [];
+    if (!sketch || layer === "text") return [];
     const pathData = sectorPath(innerR, effectiveOuterR, startAngle, endAngle);
     const drawable = generator.path(pathData, {
       roughness: 1.5,
@@ -87,7 +87,7 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
       fillWeight: 1.2,
     });
     return generator.toPaths(drawable);
-  }, [sketch, block.color, innerR, startAngle, endAngle, effectiveOuterR]);
+  }, [sketch, layer, block.color, innerR, startAngle, endAngle, effectiveOuterR]);
 
   const clipId = `clip-${block.id}`;
   const maskId = `mask-${block.id}`;
