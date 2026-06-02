@@ -23,7 +23,7 @@ export default function HelpButton() {
           <div className="px-4 pt-4 pb-3">
             <p className="text-sm font-semibold text-text mb-2">{t("help.title")}</p>
             <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">
-              <Trans i18nKey="help.description" components={[<strong className="font-medium text-text/80" />]} />
+              <Trans i18nKey="help.description" components={{ strong: <strong className="font-medium text-text/80" /> }} />
             </p>
           </div>
           <div className="border-t border-border px-4 py-3">
