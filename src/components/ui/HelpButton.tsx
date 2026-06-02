@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { useDropdown } from "@/hooks/useDropdown";
 import { DropdownPanel } from "./Dropdown";
 
@@ -15,14 +15,16 @@ export default function HelpButton() {
         onClick={toggle}
         aria-expanded={open}
         aria-label={t("help.ariaLabel")}
-        className="flex items-center justify-center w-7 h-7 text-sm font-medium text-text/50 hover:text-text/80 transition-colors rounded-full border border-border/50 hover:bg-border/20">
+        className="flex items-center justify-center w-7 h-7 text-sm font-medium text-text/70 hover:text-text/90 transition-colors rounded-full border border-border bg-background hover:bg-border/30">
         ?
       </button>
       {open && (
         <DropdownPanel side="bottom" align="left" className="w-64 lg:left-auto lg:right-0">
           <div className="px-4 pt-4 pb-3">
             <p className="text-sm font-semibold text-text mb-2">{t("help.title")}</p>
-            <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">{t("help.description")}</p>
+            <p className="text-xs text-text/60 leading-relaxed whitespace-pre-line">
+              <Trans i18nKey="help.description" components={{ strong: <strong className="font-medium text-text/80" /> }} />
+            </p>
           </div>
           <div className="border-t border-border px-4 py-3">
             <a href={FEEDBACK_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
