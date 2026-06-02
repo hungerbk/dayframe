@@ -15,7 +15,7 @@ export default function HelpButton() {
         onClick={toggle}
         aria-expanded={open}
         aria-label={t("help.ariaLabel")}
-        className="flex items-center justify-center w-7 h-7 text-sm font-medium text-text/50 hover:text-text/80 transition-colors rounded-full border border-border/50 hover:bg-border/20">
+        className="flex items-center justify-center w-7 h-7 text-sm font-medium text-text/70 hover:text-text/90 transition-colors rounded-full border border-border bg-background hover:bg-border/30">
         ?
       </button>
       {open && (
