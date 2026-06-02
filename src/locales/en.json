@@ -53,7 +53,7 @@
   "help": {
     "ariaLabel": "About",
     "title": "dayframe",
-    "description": "A tool to visualize your daily schedule as a circular timetable.\n\n• You can add up to 24 blocks.\n• Tap the edit button on a block to set a custom color or upload an image.\n• You don't have to fill in every hour.\n• Save as PNG and use it to decorate your diary, GoodNotes, or anywhere you like.",
+    "description": "A tool to visualize your daily schedule as a circular timetable.\n\n• You can add up to 24 blocks.\n• Tap the edit button on a block to set a custom color or upload an image.\n• You don't have to fill in every hour.\n• Save as PNG and use it to decorate your diary, GoodNotes, or anywhere you like.\n\nOptimized for Chrome on desktop. Some features may not display correctly on mobile.",
     "feedbackLink": "Share feedback →"
   }
 }
