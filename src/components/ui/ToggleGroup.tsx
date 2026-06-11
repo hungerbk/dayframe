@@ -29,8 +29,12 @@ export default function ToggleGroup<T extends string>({ options, value, onChange
               : "text-text/40 hover:text-text/70"
             }`}
         >
-          <span className="hidden sm:inline">{option.label}</span>
-          <span className="sm:hidden">{option.shortLabel ?? option.label}</span>
+          {option.shortLabel ? (
+            <>
+              <span className="hidden sm:inline">{option.label}</span>
+              <span className="sm:hidden">{option.shortLabel}</span>
+            </>
+          ) : option.label}
         </button>
       ))}
     </div>
