@@ -40,7 +40,7 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
         <Icon name="chevronDown" width="10" height="10" className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <DropdownPanel side="top" align="center" className="min-w-38">
+        <DropdownPanel side="auto" align="center" className="min-w-38">
           <DropdownItem onClick={() => setRemoveBackground((v) => !v)} border="bottom">
             <span className={removeBackground ? "text-text" : "text-text/50"}>{t("download.removeBackground")}</span>
             <span className={`text-xs font-medium ${removeBackground ? "text-primary" : "text-text/30"}`}>{removeBackground ? t("download.on") : t("download.off")}</span>

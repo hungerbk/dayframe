@@ -250,7 +250,7 @@ export default function Timetable() {
               {t("controls.reset")}
             </Button>
             {resetOpen && (
-              <DropdownPanel side="bottom" align="left" className="w-full">
+              <DropdownPanel side="auto" align="left" className="w-full">
                 <DropdownItem
                   onClick={() => {
                     blockReset();
