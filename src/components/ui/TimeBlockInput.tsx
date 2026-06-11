@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TimeBlock } from "@/types";
-import { isValidTime, isEndAfterStart, formatTimeInput, padTimeOnBlur } from "@/utils";
+import { isValidTime, isEndAfterStart, formatTimeInput, padTimeOnBlur, generateId } from "@/utils";
 import { MAX_BLOCKS, TITLE_MAX_LENGTH } from "@/constants/timetable";
 import Input from "./Input";
 import Button from "./Button";
@@ -124,7 +124,7 @@ export default function TimeBlockInput({ onAdd, editingBlock, onUpdate, onDelete
       onUpdate({ ...editingBlock, startTime, endTime, title: title.trim() || undefined, color, customColor, paletteIndex, imageDataUrl, imageOffsetX, imageOffsetY, imageScale });
     } else {
       onAdd({
-        id: crypto.randomUUID(),
+        id: generateId(),
         startTime,
         endTime,
         title: title.trim() || undefined,
