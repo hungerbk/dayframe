@@ -13,7 +13,7 @@ interface Props {
 
 export default function DownloadButton({ isDownloading, onDownload, disabled }: Props) {
   const { t } = useTranslation();
-  const { open, toggle, close, anchorProps } = useDropdown();
+  const { open, toggle, close, containerRef } = useDropdown();
   const [removeBackground, setRemoveBackground] = useState(false);
 
   const SIZE_OPTIONS: { value: DownloadSize; label: string }[] = [
@@ -27,7 +27,7 @@ export default function DownloadButton({ isDownloading, onDownload, disabled }: 
   }
 
   return (
-    <div className={`relative ${isDownloading || disabled ? "cursor-not-allowed" : ""}`} {...anchorProps}>
+    <div className={`relative ${isDownloading || disabled ? "cursor-not-allowed" : ""}`} ref={containerRef}>
       <button
         type="button"
         onClick={toggle}
