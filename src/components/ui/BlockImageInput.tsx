@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MAX_IMAGE_SIZE } from "@/constants/timetable";
+import { MAX_IMAGE_SIZE_MB } from "@/constants/timetable";
 import Button from "./Button";
 
 interface Props {
@@ -22,8 +22,8 @@ export default function BlockImageInput({ title, imageDataUrl, imageOffsetX, ima
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) return;
-    if (file.size > MAX_IMAGE_SIZE * 1024 * 1024) {
-      alert(t("input.imageSizeError", { maxMB: MAX_IMAGE_SIZE }));
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      alert(t("input.imageSizeError", { maxMB: MAX_IMAGE_SIZE_MB }));
       return;
     }
     const reader = new FileReader();
