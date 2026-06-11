@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { HexColorPicker } from "react-colorful";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -10,14 +11,26 @@ interface Props {
 
 export default function BlockStyleInput({ color, customColor, blockColors, onColorChange }: Props) {
   const { t } = useTranslation();
-  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // customColor가 팔레트 색이 아닌 경우에만 커스텀 색상으로 간주
   const isCustomActive = !!customColor && !blockColors.includes(customColor);
+  const pickerColor = customColor ?? color;
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
 
   return (
     <div className="flex items-center gap-3">
-      <div className="relative flex-1 h-7">
+      <div ref={containerRef} className="relative flex-1 h-7">
         <button
           type="button"
           className="h-7 w-full rounded transition-opacity hover:opacity-80"
@@ -25,23 +38,22 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
             backgroundColor: customColor,
             outline: "2.5px solid var(--color-primary)",
             outlineOffset: "2px",
-            color: "transparent",
           } : {
             background: "linear-gradient(135deg, red, orange, yellow, green, blue, violet)",
             outline: "2.5px solid transparent",
             outlineOffset: "2px",
-            color: "transparent",
           }}
-          onClick={() => colorInputRef.current?.click()}
+          onClick={() => setOpen((v) => !v)}
           aria-label={t("input.customColorLabel")}
         />
-        <input
-          ref={colorInputRef}
-          type="color"
-          value={customColor ?? color}
-          className="absolute opacity-0 w-px h-px"
-          onChange={(e) => onColorChange(e.target.value, e.target.value, undefined)}
-        />
+        {open && (
+          <div className="absolute bottom-full left-0 mb-2 z-50 rounded-xl shadow-lg overflow-hidden">
+            <HexColorPicker
+              color={pickerColor}
+              onChange={(hex) => onColorChange(hex, hex, undefined)}
+            />
+          </div>
+        )}
       </div>
       <div className="w-px h-5 bg-border shrink-0" />
       <div className="flex justify-end gap-3">
