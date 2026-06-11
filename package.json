@@ -12,6 +12,7 @@
   "dependencies": {
     "i18next": "^26.1.0",
     "react": "^19.2.5",
+    "react-colorful": "^5.7.0",
     "react-dom": "^19.2.5",
     "react-i18next": "^17.0.7",
     "roughjs": "^4.6.6"
