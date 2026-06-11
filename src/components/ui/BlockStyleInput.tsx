@@ -15,7 +15,7 @@ export default function BlockStyleInput({ color, customColor, blockColors, onCol
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isCustomActive = !!customColor && !blockColors.includes(customColor);
-  const pickerColor = customColor ?? color;
+  const pickerColor = customColor ?? (color || (blockColors[0] ?? "#000000"));
 
   useEffect(() => {
     if (!open) return;
