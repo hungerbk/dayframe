@@ -218,8 +218,8 @@ export default function Timetable() {
           <ToggleGroup
             options={[
               { value: "all", label: t("controls.displayAll") },
-              { value: "block", label: t("controls.displayBlock") },
-              { value: "major", label: t("controls.displayMajor") },
+              { value: "block", label: t("controls.displayBlock"), shortLabel: t("controls.displayBlockShort") },
+              { value: "major", label: t("controls.displayMajor"), shortLabel: t("controls.displayMajorShort") },
               { value: "none", label: t("controls.displayNone") },
             ]}
             value={numberDisplay}
