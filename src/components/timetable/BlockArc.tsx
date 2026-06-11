@@ -28,8 +28,8 @@ interface BlockArcProps {
   onClick?: () => void;
   isSelected?: boolean;
   isHovered?: boolean;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  onPointerEnter?: (e: React.PointerEvent) => void;
+  onPointerLeave?: (e: React.PointerEvent) => void;
   /**
    * 렌더 레이어 (Timetable에서 두-패스 렌더링에 사용)
    * - "shape": 아크·이미지만 — 1패스
@@ -39,7 +39,7 @@ interface BlockArcProps {
   layer?: "full" | "shape" | "text";
 }
 
-export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = false, isHovered = false, onMouseEnter, onMouseLeave, layer = "full" }: BlockArcProps) {
+export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = false, isHovered = false, onPointerEnter, onPointerLeave, layer = "full" }: BlockArcProps) {
   const startAngle = timeToAngle(block.startTime);
   let endAngle = timeToAngle(block.endTime);
   // 자정을 넘는 블록(예: 22:00~07:00): endAngle이 startAngle보다 작으면
@@ -117,8 +117,8 @@ export function BlockArc({ block, innerR, sketch = false, onClick, isSelected = 
   return (
     <g
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       style={{ cursor: onClick ? "pointer" : undefined, filter: isSelected ? "drop-shadow(0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent))" : undefined }}>
       <defs>
         {block.imageDataUrl && (

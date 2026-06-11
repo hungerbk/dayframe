@@ -7,10 +7,10 @@ const FEEDBACK_URL = "https://forms.gle/ouEKe39UYNK8mxe29";
 
 export default function HelpButton() {
   const { t } = useTranslation();
-  const { open, toggle, anchorProps } = useDropdown();
+  const { open, toggle, containerRef } = useDropdown();
 
   return (
-    <div className="relative" {...anchorProps}>
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={toggle}
