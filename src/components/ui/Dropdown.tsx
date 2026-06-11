@@ -1,6 +1,8 @@
+import { useRef, useLayoutEffect, useState } from "react";
+
 interface DropdownPanelProps {
-  /** 트리거 버튼 기준으로 드롭다운이 열리는 방향. "top": 위쪽(bottom-full), "bottom": 아래쪽(top-full) */
-  side?: "top" | "bottom";
+  /** 트리거 버튼 기준으로 드롭다운이 열리는 방향. "top": 위쪽, "bottom": 아래쪽, "auto": 뷰포트 경계 감지 후 자동 결정 */
+  side?: "top" | "bottom" | "auto";
   /** 드롭다운 패널의 수평 정렬. "left": 트리거 왼쪽 끝 기준, "center": 트리거 중앙 기준, "right": 트리거 오른쪽 끝 기준 */
   align?: "left" | "center" | "right";
   /** 너비 등 추가 Tailwind 클래스 */
@@ -9,9 +11,20 @@ interface DropdownPanelProps {
 }
 
 export function DropdownPanel({ side = "bottom", align = "left", className, children }: DropdownPanelProps) {
-  const sideClass = side === "top" ? "bottom-full mb-1.5" : "top-full mt-1";
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [resolvedSide, setResolvedSide] = useState<"top" | "bottom">("bottom");
+
+  useLayoutEffect(() => {
+    if (side !== "auto") return;
+    if (!panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setResolvedSide(rect.bottom > window.innerHeight ? "top" : "bottom");
+  }, [side]);
+
+  const effectiveSide = side === "auto" ? resolvedSide : side;
+  const sideClass = effectiveSide === "top" ? "bottom-full mb-1.5" : "top-full mt-1";
   const alignClass = align === "center" ? "left-1/2 -translate-x-1/2" : align === "right" ? "right-0" : "left-0";
-  return <div className={`absolute ${sideClass} ${alignClass} bg-white border border-border rounded-lg shadow-md overflow-hidden z-20 min-w-30 ${className ?? ""}`}>{children}</div>;
+  return <div ref={panelRef} className={`absolute ${sideClass} ${alignClass} bg-white border border-border rounded-lg shadow-md overflow-hidden z-20 min-w-30 ${className ?? ""}`}>{children}</div>;
 }
 
 interface DropdownItemProps {
