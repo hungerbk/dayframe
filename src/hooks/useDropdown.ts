@@ -13,9 +13,18 @@ export function useDropdown() {
       }
     };
 
-    // pointerdown은 iOS Safari 포함 모든 브라우저에서 안정적으로 동작
+    const handleFocusOut = (e: FocusEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.relatedTarget as Node)) {
+        setOpen(false);
+      }
+    };
+
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("focusout", handleFocusOut);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("focusout", handleFocusOut);
+    };
   }, [open]);
 
   return {
