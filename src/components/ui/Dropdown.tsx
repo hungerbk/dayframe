@@ -14,11 +14,22 @@ export function DropdownPanel({ side = "bottom", align = "left", className, chil
   const panelRef = useRef<HTMLDivElement>(null);
   const [resolvedSide, setResolvedSide] = useState<"top" | "bottom">("bottom");
 
+  // 위아래 여유 공간의 기준은 버튼(트리거)이므로 parentRect를 사용. 아래 공간이 패널 높이보다 좁고 위 공간이 더 여유로울 때만 위로 열림
   useLayoutEffect(() => {
     if (side !== "auto") return;
-    if (!panelRef.current) return;
-    const rect = panelRef.current.getBoundingClientRect();
-    setResolvedSide(rect.bottom > window.innerHeight ? "top" : "bottom");
+    const panel = panelRef.current;
+    if (!panel) return;
+    const parent = panel.parentElement;
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - parentRect.bottom;
+    const spaceAbove = parentRect.top;
+    if (spaceBelow < panelRect.height && spaceAbove > spaceBelow) {
+      setResolvedSide("top");
+    } else {
+      setResolvedSide("bottom");
+    }
   }, [side]);
 
   const effectiveSide = side === "auto" ? resolvedSide : side;
