@@ -19,7 +19,7 @@
     "imageAdjust": "Adjust image",
     "updateHint": "Changes apply when you click Update.",
     "customColorLabel": "Pick custom color",
-    "imageSizeError": "Image must be 5 MB or smaller."
+    "imageSizeError": "Image must be {{maxMB}} MB or smaller."
   },
   "controls": {
     "shapeDonut": "Donut shape",
@@ -53,7 +53,7 @@
   "help": {
     "ariaLabel": "About",
     "title": "dayframe",
-    "description": "A tool to visualize your daily schedule as a circular timetable.\n\n• You can add up to <strong>24 blocks</strong>.\n• Tap the <strong>edit button</strong> on a block to set a <strong>custom color</strong> or <strong>upload an image</strong> (up to 5 MB).\n• You don't have to fill in every hour.\n• Save as <strong>PNG</strong> and use it to decorate your diary, GoodNotes, or anywhere you like.\n\nOptimized for <strong>Chrome on desktop</strong>. Some features may not display correctly on mobile.",
+    "description": "A tool to visualize your daily schedule as a circular timetable.\n\n• You can add up to <strong>24 blocks</strong>.\n• Tap the <strong>edit button</strong> on a block to set a <strong>custom color</strong> or <strong>upload an image</strong> (up to {{maxMB}} MB).\n• You don't have to fill in every hour.\n• Save as <strong>PNG</strong> and use it to decorate your diary, GoodNotes, or anywhere you like.\n\nOptimized for <strong>Chrome on desktop</strong>. Some features may not display correctly on mobile.",
     "feedbackLink": "Share feedback →"
   }
 }
