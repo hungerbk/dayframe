@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 interface Option<T extends string> {
   value: T;
   label: ReactNode;
+  shortLabel?: ReactNode;
   ariaLabel?: string;
 }
 
@@ -28,7 +29,8 @@ export default function ToggleGroup<T extends string>({ options, value, onChange
               : "text-text/40 hover:text-text/70"
             }`}
         >
-          {option.label}
+          <span className="hidden sm:inline">{option.label}</span>
+          <span className="sm:hidden">{option.shortLabel ?? option.label}</span>
         </button>
       ))}
     </div>
