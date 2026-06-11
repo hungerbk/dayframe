@@ -23,7 +23,7 @@ export default function ToggleGroup<T extends string>({ options, value, onChange
           aria-label={option.ariaLabel}
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`flex items-center justify-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+          className={`flex items-center justify-center px-2.5 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-colors
             ${value === option.value
               ? "bg-page shadow-sm text-text"
               : "text-text/40 hover:text-text/70"
