@@ -13,6 +13,8 @@ interface Props {
   onImageTransform: (offsetX: number, offsetY: number, scale: number) => void;
 }
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export default function BlockImageInput({ title, imageDataUrl, imageOffsetX, imageOffsetY, imageScale, onImageLoad, onImageRemove, onImageTransform }: Props) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,7 +23,7 @@ export default function BlockImageInput({ title, imageDataUrl, imageOffsetX, ima
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) return;
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_IMAGE_SIZE) {
       alert(t("input.imageSizeError"));
       return;
     }
