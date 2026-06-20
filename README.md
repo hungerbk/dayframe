@@ -30,10 +30,10 @@ npm run dev
 
 ## 기술 스택
 
-| 분류        | 사용 기술                        |
-| ----------- | -------------------------------- |
-| 프론트엔드  | React 19 + TypeScript            |
-| 빌드 도구   | Vite                             |
-| 스타일      | Tailwind CSS v4                  |
-| 렌더링      | SVG, rough.js                    |
-| 다국어 지원 | i18next, react-i18next           |
+| 분류        | 사용 기술              |
+| ----------- | ---------------------- |
+| 프론트엔드  | React 19 + TypeScript  |
+| 빌드 도구   | Vite                   |
+| 스타일      | Tailwind CSS v4        |
+| 렌더링      | SVG, rough.js          |
+| 다국어 지원 | i18next, react-i18next |
