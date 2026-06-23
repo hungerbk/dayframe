@@ -34,6 +34,7 @@
 Node.js 18 이상이 필요합니다.
 
 ```bash
+npm install
 npm run dev
 ```
 
