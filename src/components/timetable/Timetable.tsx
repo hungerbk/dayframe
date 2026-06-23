@@ -165,8 +165,8 @@ export default function Timetable() {
                 onClick={() => handleBlockClick(block.id)}
                 isSelected={false}
                 isHovered={false}
-                onMouseEnter={() => setHoveredBlockId(block.id)}
-                onMouseLeave={() => setHoveredBlockId(null)}
+                onPointerEnter={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(block.id); }}
+                onPointerLeave={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(null); }}
               />
             ))}
 
@@ -189,8 +189,8 @@ export default function Timetable() {
                 onClick={() => handleBlockClick(hoveredBlock.id)}
                 isSelected={false}
                 isHovered={true}
-                onMouseEnter={() => setHoveredBlockId(hoveredBlock.id)}
-                onMouseLeave={() => setHoveredBlockId(null)}
+                onPointerEnter={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(hoveredBlock.id); }}
+                onPointerLeave={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(null); }}
               />
             )}
             {selectedBlock && (
@@ -202,8 +202,8 @@ export default function Timetable() {
                 onClick={() => handleBlockClick(selectedBlock.id)}
                 isSelected={true}
                 isHovered={selectedBlock.id === hoveredBlockId}
-                onMouseEnter={() => setHoveredBlockId(selectedBlock.id)}
-                onMouseLeave={() => setHoveredBlockId(null)}
+                onPointerEnter={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(selectedBlock.id); }}
+                onPointerLeave={(e) => { if (e.pointerType !== "touch") setHoveredBlockId(null); }}
               />
             )}
 
@@ -218,8 +218,8 @@ export default function Timetable() {
           <ToggleGroup
             options={[
               { value: "all", label: t("controls.displayAll") },
-              { value: "block", label: t("controls.displayBlock") },
-              { value: "major", label: t("controls.displayMajor") },
+              { value: "block", label: t("controls.displayBlock"), shortLabel: t("controls.displayBlockShort") },
+              { value: "major", label: t("controls.displayMajor"), shortLabel: t("controls.displayMajorShort") },
               { value: "none", label: t("controls.displayNone") },
             ]}
             value={numberDisplay}
@@ -250,7 +250,7 @@ export default function Timetable() {
               {t("controls.reset")}
             </Button>
             {resetOpen && (
-              <DropdownPanel side="bottom" align="left" className="w-full">
+              <DropdownPanel side="auto" align="left" className="w-full">
                 <DropdownItem
                   onClick={() => {
                     blockReset();

@@ -10,7 +10,7 @@ const LANGUAGES = [
 
 export default function LanguageSelector() {
   const { t, i18n } = useTranslation();
-  const { open, toggle, close, anchorProps } = useDropdown();
+  const { open, toggle, close, containerRef } = useDropdown();
 
   const currentLang = LANGUAGES.find((l) => i18n.language.startsWith(l.code)) ?? LANGUAGES[0];
 
@@ -20,7 +20,7 @@ export default function LanguageSelector() {
   }
 
   return (
-    <div className="relative" {...anchorProps}>
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={toggle}
